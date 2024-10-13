@@ -8,54 +8,52 @@ import org.hibernate.validator.constraints.Length;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "employees")
+@Table(name = "reports")
 @SQLRestriction("delete_flg = false")
-public class Employee {
+public class Reports {
 
     public static enum Role {
         GENERAL("一般"), ADMIN("管理者");
 
-        private String name;
+        private String date;
 
-        private Role(String name) {
-            this.name = name;
+        private Role(String date) {
+            this.date = date;
         }
 
         public String getValue() {
-            return this.name;
+            return this.date;
         }
     }
 
     // ID
-    @Id
+    @Column(columnDefinition="INT", nullable = false)
+    private String id;
+
+    // 日付
+    @Column(columnDefinition="DATE", nullable = false)
+    private boolean reportdate;
+
+    // タイトル
+    @Column(columnDefinition="VARCHAR(100)", nullable = false)
+    private String title;
+
+    //内容
+    @Column(columnDefinition="LONGTEXT", nullable = false)
+    @NotEmpty
+    private String content;
+
+    // 社員番号
     @Column(length = 10)
     @NotEmpty
     @Length(max = 10)
-    private String code;
-
-    // 名前
-    @Column(length = 20, nullable = false)
-    @NotEmpty
-    @Length(max = 20)
-    private String name;
-
-    // 権限
-    @Column(columnDefinition="VARCHAR(10)", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    // パスワード
-    @Column(length = 255, nullable = false)
-    private String password;
+    private String employeecode;
 
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)
@@ -68,7 +66,4 @@ public class Employee {
     // 更新日時
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-
-
 }
