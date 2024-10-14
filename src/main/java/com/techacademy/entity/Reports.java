@@ -1,40 +1,42 @@
-
 package com.techacademy.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.validator.constraints.Length;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+
 @Data
 @Entity
 @Table(name = "reports")
-@SQLRestriction("delete_flg = false")
 public class Reports {
 
     public static enum Role {
         GENERAL("一般"), ADMIN("管理者");
 
-        private String date;
+    	private String value;
 
-        private Role(String date) {
-            this.date = date;
+        private Role(String value) {
+            this.value = value;
         }
 
         public String getValue() {
-            return this.date;
+            return this.value;
         }
     }
 
-    // ID
-    @Column(columnDefinition="INT", nullable = false)
-    private String id;
+ // ID
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 型をLongに変更
 
     // 日付
     @Column(columnDefinition="DATE", nullable = false)
@@ -53,7 +55,7 @@ public class Reports {
     @Column(length = 10)
     @NotEmpty
     @Length(max = 10)
-    private String employeecode;
+    private String employeeode;
 
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)

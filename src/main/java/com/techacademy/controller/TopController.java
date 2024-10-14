@@ -15,7 +15,7 @@ public class TopController {
 
     // ログイン後のトップページ表示
     @GetMapping(value = "/")
-    public String top(Model model) {
+    public String top() {
         return "redirect:/reports";
     }
 
