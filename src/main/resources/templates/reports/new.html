@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="common/header :: head_fragment(title=日報 新規登録)"></head>
+
+<body class="h-100 overflow-hidden">
+    <div class="row h-100">
+        <div class="h-100 p-3 mb-2 bg-dark text-white col-sm-2">
+            <nav th:replace="common/side :: copy"></nav>
+        </div>
+
+        <div class="mt-3 h-100 col-sm-10">
+            <!-- コンテンツ -->
+            <div class="container-fluid p-0">
+                <h1 class="h3 mb-3">日報 新規登録</h1>
+            </div>
+
+            <div class="col-12 col-xxl-6">
+
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body">
+                        <form th:action="@{/employees/add}" th:object="${employee}" th:method="post">
+
+                        <div class="wizard wizard-success mb-4">
+                             <div class="mb-3">
+                                 <label class="form-label" for="reportDate">日付</label>
+                                 <p class="mb-1"> </p>
+                                 <div class="col-md-7">
+                                    <input class="form-control" type="text" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
+                                    <span th:errors="*{reportDate}" class="text-danger"> </span>
+                                    <span th:if="${reportDateError} neq null" th:text="${reportDateError}" class="text-danger"> </span>
+                                  </div>
+                             </div>
+
+                             <div class="mb-3">
+                                 <label class="form-label" for="employeeCode">氏名</label>
+                                 <p class="mb-1"> </p>
+                                 <div class="col-md-7">
+                                     <input class="form-control" type="text" th:field="*{employeeCode}" th:errorclass="err" id="employeeCode">
+                                     <span th:errors="*{employeeCode}" class="text-danger"> </span>
+                                 </div>
+                              </div>
+
+                              <div class="mb-3">
+                                 <label class="form-label" for="title">タイトル</label>
+                                 <p class="mb-1"> </p>
+                                 <div class="col-md-7">
+                                    <input class="form-control" type="title" th:field="*{title}" th:errorclass="err" id="title">
+                                    <span th:if="${titleError} neq null" th:text="${titleError}" class="text-danger"> </span>
+                                  </div>
+
+                              <div class="mb-3">
+                                 <label class="form-label" for="content">内容</label>
+                                 <p class="mb-1"></p>
+                                 <div class="col-md-7">
+                                    <input class="form-control" type="content" th:field="*{content}" th:errorclass="err" id="content">
+                                    <span th:if="${contentError} neq null" th:text="${contentError}" class="text-danger"></span>
+                                  </div>
+                              </div>
+
+                        </div><!--//end_wizard wizard-success mb-4//-->
+
+                             <p class="mt-5">
+                                 <input type="submit" value="登録" class="btn btn-primary">
+                                 <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
+                             </p>
+
+                        </form>
+                        </div><!--///end_card-body///-->
+                    </div><!--///end_card///-->
+                </div><!--///end_col-xl-12///-->
+
+            </div><!--///col-12 col-xxl-6///-->
+        </div><!--///end_mt-3 h-100 col-sm-10////-->
+    </div><!--////end_row h-100////-->
+</body>
+
+</html>

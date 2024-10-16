@@ -40,7 +40,7 @@ public class Reports {
 
     // 日付
     @Column(columnDefinition="DATE", nullable = false)
-    private boolean reportdate;
+    private boolean reportDate;
 
     // タイトル
     @Column(columnDefinition="VARCHAR(100)", nullable = false)
@@ -55,7 +55,7 @@ public class Reports {
     @Column(length = 10)
     @NotEmpty
     @Length(max = 10)
-    private String employeeode;
+    private String employeeCode;
 
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)
