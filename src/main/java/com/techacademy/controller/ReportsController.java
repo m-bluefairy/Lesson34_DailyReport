@@ -1,18 +1,17 @@
 package com.techacademy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
-
-import com.techacademy.entity.reports;
+import com.techacademy.entity.Reports;
 import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 
@@ -31,7 +30,7 @@ public class ReportsController {
     @GetMapping
     public String list(Model model) {
 
-        model.addAttribute("listSize", ((Object) reportsService.findAll()));
+        model.addAttribute("listSize", reportsService.findAll().size());
         model.addAttribute("rList", reportsService.findAll());
 
         return "reports/list";
@@ -40,27 +39,25 @@ public class ReportsController {
     // 日報詳細画面
     @GetMapping(value = "/{reportsDate}/")
     public String detail(@PathVariable String reportsDate, Model model) {
-
         model.addAttribute("reports", reportsService.findByCode(reportsDate));
         return "reports/detail";
     }
 
+
     // 日報新規登録画面
     @GetMapping(value = "/add")
-    public String create() {
+    public String create(Model model) {
+    	model.addAttribute("reports", new Reports());
         return "reports/new";
     }
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
-    public String add(@Validated Reports reports, Model model) {
+    public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model) {
 
-    	if ("".equals(reports.getReportsDate())) {
-            // 日付が空白だった場合
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-
-            return create(reports);
+    	if (bindingResult.hasErrors()) {
+    		// バリデーションエラーがあれば、エラーメッセージを表示
+            return create(model);
         }
 
         try {
@@ -68,14 +65,13 @@ public class ReportsController {
 
             if (result != ErrorKinds.SUCCESS) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create();
-            }
-        }
-
+                return create(model);
+            	}
+        	}
         catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            return create();
+            return create(model);
         }
 
         return "redirect:/reports";
@@ -95,5 +91,4 @@ public class ReportsController {
 
             return "redirect:/reports";
     }
-
 }

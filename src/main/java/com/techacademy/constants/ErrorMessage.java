@@ -53,4 +53,18 @@ public class ErrorMessage {
     public static String getErrorValue(ErrorKinds errorKinds) {
         return errorMessageMap.get(errorKinds).get(1);
     }
+
+    // エラーコードに基づいてエラーレポート日付を取得するメソッド
+    public static String getErrorReportsDate(ErrorKinds errorKind) {
+        switch (errorKind) {
+            case BLANK_ERROR:
+                return "blankErrorDate"; // 日付が空のエラー
+            case DUPLICATE_ERROR:
+                return "duplicateErrorDate"; // 重複エラー
+           /* case NOT_FOUND:
+                return "notFoundDate"; // 未発見エラー*/
+            default:
+                return "unknownError"; // 不明なエラー
+        }
+    }
 }

@@ -1,11 +1,12 @@
 package com.techacademy.entity;
 
 import java.time.LocalDateTime;
-
+import java.time.LocalDate;
 import org.hibernate.validator.constraints.Length;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,6 +14,8 @@ import lombok.Data;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
+
 
 @Data
 @Entity
@@ -36,11 +39,11 @@ public class Reports {
  // ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 型をLongに変更
+    private Long id;
 
     // 日付
     @Column(columnDefinition="DATE", nullable = false)
-    private boolean reportDate;
+    private LocalDate reportDate;
 
     // タイトル
     @Column(columnDefinition="VARCHAR(100)", nullable = false)
@@ -68,4 +71,14 @@ public class Reports {
     // 更新日時
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    // 日付を取得するメソッド
+    public LocalDate getReportsDate() {
+        return reportDate;
+    }
+
+    public void setReportsDate(LocalDate reportDate) {
+        this.reportDate = reportDate;
+    }
+
 }
