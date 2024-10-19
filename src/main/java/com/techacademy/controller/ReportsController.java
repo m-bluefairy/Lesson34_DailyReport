@@ -85,7 +85,6 @@ public class ReportsController {
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorReportsDate(result), ErrorMessage.getErrorValue(result));
-                model.addAttribute("reports", reportsService.findByReportsDate(reportsDate));
                 return detail(reportsDate, model);
             }
 

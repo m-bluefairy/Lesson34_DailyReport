@@ -105,14 +105,7 @@ public class ReportsService {
         return ErrorKinds.SUCCESS;
     }
 
-    // 日報の日付でレポートを検索する
-    public Reports findByReportsDate(String reportsDate) {
-        LocalDate date = LocalDate.parse(reportsDate);
-        return reportsRepository.findByReportDate(date);
-    }
-
     // ----- 追加:ここまで -----
-
 
 	private ErrorKinds reportsDateCheck(Reports reports) {
 		// 日付チェックのロジックを実装
