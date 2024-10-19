@@ -28,7 +28,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                  <tr th:each="reports${reportsList}">
+                                  <tr th:each="reports:${reportsList}">
                                       <td class="align-middle" th:text="${employee.name}"></td>
                                       <td class="align-middle" th:text="${reports.reportDate}"></td>
                                       <td class="align-middle" th:text="${reports.title}"></td>
