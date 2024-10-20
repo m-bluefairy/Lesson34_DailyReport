@@ -25,15 +25,15 @@
                     <table class="table table-striped">
                         <tr>
                             <th class="w-25">日付</th>
-                            <td class="align-middle" th:text="${reports.reportDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${#temporals.format(employee.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
                         </tr>
                         <tr>
                             <th>氏名</th>
-                            <td class="align-middle" th:text="${employee.name}"></td>
+                            <td class="align-middle" th:text="${report.employee.code}"></td>
                         </tr>
                         <tr>
                             <th>タイトル</th>
-                                <td class="align-middle" th:text="${reports.title}"></td>
+                                <td class="align-middle" th:text="${report.title}"></td>
                         </tr>
                         <tr>
                             <th>内容</th>

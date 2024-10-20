@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @Entity
@@ -19,6 +20,7 @@ public class Reports {
 
     // 日付
     @Column(columnDefinition = "DATE", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd") // 追加
     private LocalDate reportDate;
 
     // タイトル

@@ -18,9 +18,12 @@ public enum ErrorKinds {
     LOGINCHECK_ERROR,
     // 日付チェックエラー
     DATECHECK_ERROR,
+    // 日付無効エラー
+    INVALID_DATE, 
     // チェックOK
     CHECK_OK,
     // 正常終了
-    SUCCESS, NOT_FOUND;
-
+    SUCCESS,
+    // レポートが見つからないエラー
+    NOT_FOUND;
 }
