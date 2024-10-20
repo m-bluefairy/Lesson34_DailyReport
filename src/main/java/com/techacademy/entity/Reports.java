@@ -12,20 +12,6 @@ import lombok.Data;
 @Table(name = "reports")
 public class Reports {
 
-    public static enum Role {
-        GENERAL("一般"), ADMIN("管理者");
-
-        private String value;
-
-        private Role(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return this.value;
-        }
-    }
-
     // ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +32,7 @@ public class Reports {
 
     // 社員情報
     @ManyToOne
-    @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false)
+    @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false, insertable = false, updatable = false)
     private Employee employee;
 
     // 削除フラグ(論理削除を行うため)
