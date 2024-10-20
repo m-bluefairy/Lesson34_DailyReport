@@ -3,6 +3,7 @@ package com.techacademy.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,11 @@ public class ReportsService {
     @Autowired
     public ReportsService(ReportsRepository reportsRepository) {
         this.reportsRepository = reportsRepository;
-
     }
 
-    public Reports findByCode(String reportsDate) {
-        LocalDate date = LocalDate.parse(reportsDate);
-        // 文字列をLocalDateに変換
+    // 日付でレポートを検索するメソッド
+    public Reports findByReportDate(String reportDate) {
+        LocalDate date = LocalDate.parse(reportDate);
         return reportsRepository.findByReportDate(date);
     }
 
@@ -40,7 +40,7 @@ public class ReportsService {
         }
 
         // 日付重複チェック
-        LocalDate reportDate = reports.getReportsDate();
+        LocalDate reportDate = reports.getReportDate();
         Reports existingReport =reportsRepository.findByReportDate(reportDate);
         if (existingReport != null) {
             return ErrorKinds.DUPLICATE_ERROR;
@@ -53,11 +53,10 @@ public class ReportsService {
 
         reportsRepository.save(reports);
         return ErrorKinds.SUCCESS;
-
     }
 
     // ----- 追加:ここから -----
-    //日付更新（追加）を行なう
+    //日付更新（追加）
     @Transactional
     public ErrorKinds update(Reports reports, String newDate) {
 
@@ -65,7 +64,7 @@ public class ReportsService {
     	if (!newDate.isEmpty()) {
     		// newDateをLocalDateに変換してreportsにセット
     		LocalDate newReportDate = LocalDate.parse(newDate);
-    		reports.setReportsDate(newReportDate);
+    		reports.setReportDate(newReportDate);
 
     		// 日付チェック
     		ErrorKinds result = reportsDateCheck(reports);
@@ -81,7 +80,6 @@ public class ReportsService {
 
     		// 更新日時の設定
     		reports.setUpdatedAt(LocalDateTime.now());
-    		// 更新をリポジトリに保存
     		reportsRepository.save(reports);
         }
 
@@ -90,9 +88,8 @@ public class ReportsService {
 
     // 日付削除処理
     @Transactional
-    public ErrorKinds delete(String reportsDate, UserDetail userDetail) {
-        LocalDate date = LocalDate.parse(reportsDate);
-        System.out.println("Attempting to delete report for date: " + date);
+    public ErrorKinds delete(String reportDate, UserDetail userDetail) {
+        LocalDate date = LocalDate.parse(reportDate);
         Reports report = reportsRepository.findByReportDate(date);
         if (report == null) {
         	// レポートが見つからない場合
@@ -111,9 +108,17 @@ public class ReportsService {
 		// 日付チェックのロジックを実装
 		return ErrorKinds.CHECK_OK;
 	}
-
+	// 日報一覧表示処理
 	public List<Reports> findAll() {
 		return reportsRepository.findAll();
 	}
+
+    // 1件を検索
+    public Reports findById(Long id) {
+        // findByIdで検索
+        Optional<Reports> option = reportsRepository.findById(id);
+        // 取得できなかった場合はnullを返す
+        return option.orElse(null);
+    }
 
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="common/header :: head_fragment(title=日報 新規登録)"></head>
+<head th:replace="common/header :: head_fragment(title=日報新規登録)"></head>
 
 <body class="h-100 overflow-hidden">
     <div class="row h-100">
@@ -20,42 +20,41 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                        <form th:action="@{/employees/add}" th:object="${employee}" th:method="post">
+                        <form th:action="@{/reports/add}" th:object="${reports}" th:method="post">
 
                         <div class="wizard wizard-success mb-4">
                              <div class="mb-3">
-                                 <label class="form-label" for="reportDate">日付</label>
-                                 <p class="mb-1"> </p>
-                                 <div class="col-md-7">
-                                    <input class="form-control" type="text" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
+                                <label for="datetimepicker1" class="pt-2 pr-2">日付</label>
+                                    <input class="form-control" type="text" th:field="*{reportDate}" th:errorclass="${#fields.hasErrors('reportDate') ? 'error' : ''}" id="reportDate">
                                     <span th:errors="*{reportDate}" class="text-danger"> </span>
                                     <span th:if="${reportDateError} neq null" th:text="${reportDateError}" class="text-danger"> </span>
-                                  </div>
+                                    	<i class="fa fa-calendar"></i>
                              </div>
 
                              <div class="mb-3">
-                                 <label class="form-label" for="employeeCode">氏名</label>
-                                 <p class="mb-1"> </p>
-                                 <div class="col-md-7">
-                                     <input class="form-control" type="text" th:field="*{employeeCode}" th:errorclass="err" id="employeeCode">
-                                     <span th:errors="*{employeeCode}" class="text-danger"> </span>
-                                 </div>
+                                <label class="form-label" for="employeeCode">氏名</label>
+                                <p class="mb-1"> </p>
+                                <div class="col-md-7">
+                                   	<input class="form-control" type="text" th:field="*{employeeCode}" th:errorclass="${#fields.hasErrors('employeeCode') ? 'error' : ''}" id="employeeCode">
+                                    <span th:errors="*{employeeCode}" class="text-danger"> </span>
+                                </div>
                               </div>
 
                               <div class="mb-3">
                                  <label class="form-label" for="title">タイトル</label>
                                  <p class="mb-1"> </p>
                                  <div class="col-md-7">
-                                    <input class="form-control" type="title" th:field="*{title}" th:errorclass="err" id="title">
+                                    <input class="form-control" type="text" th:field="*{title}" th:errorclass="${#fields.hasErrors('title') ? 'error' : ''}" id="title">
+                                    <span th:errors="*{title}" class="text-danger"> </span>
                                     <span th:if="${titleError} neq null" th:text="${titleError}" class="text-danger"> </span>
                                   </div>
 
                               <div class="mb-3">
                                  <label class="form-label" for="content">内容</label>
-                                 <p class="mb-1"></p>
-                                 <div class="col-md-7">
-                                    <input class="form-control" type="content" th:field="*{content}" th:errorclass="err" id="content">
-                                    <span th:if="${contentError} neq null" th:text="${contentError}" class="text-danger"></span>
+                                 <div class="form-floating">
+                                     <input class="form-control" type="text" th:field="*{content}" th:errorclass="${#fields.hasErrors('content') ? 'error' : ''}" id="content">
+                                      <span th:errors="*{content}" class="text-danger"></span>
+                                      <span th:if="${contentError} neq null" th:text="${contentError}" class="text-danger"></span>
                                   </div>
                               </div>
 

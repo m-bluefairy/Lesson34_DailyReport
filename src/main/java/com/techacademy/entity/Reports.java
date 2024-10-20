@@ -3,19 +3,9 @@ package com.techacademy.entity;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import org.hibernate.validator.constraints.Length;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
-
 
 @Data
 @Entity
@@ -55,10 +45,9 @@ public class Reports {
     private String content;
 
     // 社員番号
-    @Column(length = 10)
-    @NotEmpty
-    @Length(max = 10)
-    private String employeeCode;
+    @ManyToOne
+    @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false)
+    private Employee employee;
 
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)
@@ -72,8 +61,12 @@ public class Reports {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // フィールド名
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String fieldName;
+
     // 日付を取得するメソッド
-    public LocalDate getReportsDate() {
+    public LocalDate getReportDate() {
         return reportDate;
     }
 
@@ -81,4 +74,12 @@ public class Reports {
         this.reportDate = reportDate;
     }
 
+    // fieldNameのgetterとsetter
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
 }
