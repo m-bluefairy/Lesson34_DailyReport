@@ -30,9 +30,10 @@ public class ReportsController {
     @GetMapping
     public String list(Model model) {
         model.addAttribute("listSize", reportsService.findAll().size());
-        model.addAttribute("rList", reportsService.findAll());
+        model.addAttribute("reportsList", reportsService.findAll()); 
         return "reports/list";
     }
+
 
     // 日報詳細画面
     @GetMapping(value = "/{reportDate}/")

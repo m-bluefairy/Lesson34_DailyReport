@@ -28,12 +28,12 @@
                               </tr>
                             </thead>
                             <tbody>
-                                  <tr th:each="reports:${reportsList}">
-                                      <td class="align-middle" th:text="${employee.code}"></td>
-                                      <td class="align-middle" th:text="${reports.reportDate}"></td>
-                                      <td class="align-middle" th:text="${reports.title}"></td>
-                                      <td class="align-middle"><a th:href="@{/reports/{title}/(title=${reports.title})}" class="btn btn-primary">詳細</a></td>
-                                  </tr>
+                            	<tr th:each="report : ${reportsList}">
+                            		<td class="align-middle" th:text="${report.employee.code}"> </td> <!-- employeeはreportに関連付け -->
+                               		<td class="align-middle" th:text="${report.reportDate}"> </td>
+                                	<td class="align-middle" th:text="${report.title}"> </td>
+                                	<td class="align-middle"><a th:href="@{/reports/{title}/(title=${report.title})}" class="btn btn-primary">詳細</a></td>
+                             	</tr>
                              </tbody>
                          </table>
                          </div><!--//end_card-body//-->
