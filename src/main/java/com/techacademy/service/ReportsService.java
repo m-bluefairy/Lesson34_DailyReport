@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
+
 import com.techacademy.entity.Reports;
 import com.techacademy.repository.ReportsRepository;
 
@@ -139,4 +140,10 @@ public class ReportsService {
         Optional<Reports> option = reportsRepository.findById(id);
         return option.orElse(null);
     }
+
+    // 現在の日報を取得するメソッド
+    public Reports findCurrentEmployee(String reportDate) {
+        return findByReportDate(reportDate);
+    }
+
 }

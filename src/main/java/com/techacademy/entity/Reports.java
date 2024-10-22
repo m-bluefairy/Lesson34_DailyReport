@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -20,7 +21,8 @@ public class Reports {
 
     // 日付
     @Column(columnDefinition = "DATE", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd") // 追加
+    @NotNull // 日付が必須であることを示す
+    @DateTimeFormat(pattern = "yyyy-MM-dd") // 日付フォーマットを指定
     private LocalDate reportDate;
 
     // タイトル
@@ -32,9 +34,13 @@ public class Reports {
     @NotEmpty
     private String content;
 
+    // 社員番号
+    @Column(name = "employee_code", nullable = false)
+    private String employeeCode;
+
     // 社員情報
     @ManyToOne
-    @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "employee_code", referencedColumnName = "code", insertable = false, updatable = false)
     private Employee employee;
 
     // 削除フラグ(論理削除を行うため)
@@ -58,8 +64,8 @@ public class Reports {
         return reportDate;
     }
 
-    public void setReportsDate(LocalDate reportDate) {
-        this.reportDate = reportDate;
+    public void setReportDate(LocalDate reportDate) {
+        this.reportDate = reportDate; // setterの名前を修正
     }
 
     // fieldNameのgetterとsetter
@@ -71,3 +77,4 @@ public class Reports {
         this.fieldName = fieldName;
     }
 }
+
