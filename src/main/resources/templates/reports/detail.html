@@ -25,26 +25,26 @@
                     <table class="table table-striped">
                         <tr>
                             <th class="w-25">日付</th>
-                            <td th:text="${#temporals.format(employee.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td class="align-middle" th:text="${reports.reportDate}"> </td>
                         </tr>
                         <tr>
                             <th>氏名</th>
-                            <td class="align-middle" th:text="${report.employee.code}"></td>
+                            <td class="align-middle" th:text="${report.employee.code}"> </td>
                         </tr>
                         <tr>
                             <th>タイトル</th>
-                                <td class="align-middle" th:text="${report.title}"></td>
+                                <td class="align-middle" th:text="${report.title}"> </td>
                         </tr>
                         <tr>
                             <th>内容</th>
-                                <td class="align-middle" th:text="${reports.content}"></td>
+                                <td class="align-middle" th:text="${reports.content}"> </td>
                         </tr>
                         <tr>
                             <th>登録日時</th>
-                            <td class="align-middle" th:text="${#temporals.format(reports.createdAt, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td class="align-middle" th:text="${#temporals.format(reports.createdAt, 'yyyy-MM-dd hh:mm:ss')}"> </td>
                         </tr>
                             <th>更新日時</th>
-                            <td class="align-middle" th:text="${#temporals.format(reports.updatedAt, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td class="align-middle" th:text="${#temporals.format(reports.updatedAt, 'yyyy-MM-dd hh:mm:ss')}"> </td>
                         </tr>
                      </table>
 
@@ -54,11 +54,19 @@
                             <a th:href="@{/reports/{reportDate}/update(reportDate=${reportDate})}" class="btn btn-primary">更新</a>
                         </div>
 
-                        <div class="col-auto">
+						<div th:if="${report != null}">
+						<p th:text="${report.reportDate}"></p>
+						</div>
+						<div th:if="${report == null}">
+						<p>レポートが見つかりません。</p>
+						</div>
+
+
+                        <!--<div class="col-auto">
                         <form name="form" th:action="@{/reports/{reportDate}/delete(reportDate=${reportDate})}" th:method="post">
                             <input type="submit" value="削除" class="btn btn-primary">
                         </form>
-                        </div>
+                        </div>-->
 
                         <div class="col-auto">
                             <a th:href="@{/reports}" class="btn btn-primary">戻る</a>

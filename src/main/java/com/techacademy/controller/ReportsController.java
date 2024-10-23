@@ -94,7 +94,8 @@ public class ReportsController {
             return handleError(model, "指定された日報は存在しません。");
         }
 
-        model.addAttribute("reports", reports.get(0));
+        Reports report = reports.get(0);
+        model.addAttribute("reports", report); // reports という名前でオブジェクトを追加
         return "reports/detail";
     }
 
@@ -106,7 +107,7 @@ public class ReportsController {
     // エラーハンドリングメソッド
     private String handleError(Model model, String errorMessage) {
         model.addAttribute("errorMessage", errorMessage);
-        return "reports/error"; // エラーページへリダイレクト
+        return "reports/error"; // エラーページへ遷移
     }
 
     // 日付削除処理
