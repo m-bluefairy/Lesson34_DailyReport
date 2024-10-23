@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
-
 import com.techacademy.entity.Reports;
 import com.techacademy.repository.ReportsRepository;
 
@@ -26,7 +25,7 @@ public class ReportsService {
     }
 
     // 日付でレポートを検索するメソッド
-    public Reports findByReportDate(String reportDate) {
+    public List<Reports> findByReportDate(String reportDate) {
         if (reportDate == null || reportDate.isEmpty()) {
             throw new IllegalArgumentException("日付が入力されていません。");
         }
@@ -51,8 +50,8 @@ public class ReportsService {
 
         // 日付重複チェック
         LocalDate reportDate = reports.getReportDate();
-        Reports existingReport = reportsRepository.findByReportDate(reportDate);
-        if (existingReport != null) {
+        List<Reports> existingReports = reportsRepository.findByReportDate(reportDate);
+        if (!existingReports.isEmpty()) {
             return ErrorKinds.DUPLICATE_ERROR;
         }
 
@@ -83,8 +82,8 @@ public class ReportsService {
             }
 
             // 日付重複チェック
-            Reports existingReport = reportsRepository.findByReportDate(newReportDate);
-            if (existingReport != null && !existingReport.getId().equals(reports.getId())) {
+            List<Reports> existingReports = reportsRepository.findByReportDate(newReportDate);
+            if (!existingReports.isEmpty() && !existingReports.get(0).getId().equals(reports.getId())) {
                 return ErrorKinds.DUPLICATE_ERROR;
             }
 
@@ -114,19 +113,25 @@ public class ReportsService {
             return ErrorKinds.INVALID_DATE;
         }
 
-        Reports report = reportsRepository.findByReportDate(date);
-        if (report == null) {
+        List<Reports> reports = reportsRepository.findByReportDate(date);
+        if (reports.isEmpty()) {
             return ErrorKinds.NOT_FOUND;
         }
 
         // 削除処理
-        report.setDeleteFlg(true);
-        reportsRepository.save(report);
+        for (Reports report : reports) {
+            report.setDeleteFlg(true);
+            reportsRepository.save(report);
+        }
         return ErrorKinds.SUCCESS;
     }
 
     private ErrorKinds reportsDateCheck(Reports reports) {
-        // 日付チェックのロジックを実装
+        LocalDate reportDate = reports.getReportDate();
+        if (reportDate == null) {
+            return ErrorKinds.INVALID_DATE; // 適切なエラータイプを返す
+        }
+        // 必要な日付チェックのロジックをここに追加
         return ErrorKinds.CHECK_OK;
     }
 
@@ -142,8 +147,7 @@ public class ReportsService {
     }
 
     // 現在の日報を取得するメソッド
-    public Reports findCurrentEmployee(String reportDate) {
+    public List<Reports> findCurrentReports(String reportDate) {
         return findByReportDate(reportDate);
     }
-
 }

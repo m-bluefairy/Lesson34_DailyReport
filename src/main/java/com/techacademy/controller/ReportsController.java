@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Reports;
-import com.techacademy.entity.Employee; // Employeeをインポート
+import com.techacademy.entity.Employee;
 import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
-import com.techacademy.service.EmployeeService; // EmployeeServiceをインポート
+import com.techacademy.service.EmployeeService;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("reports")
@@ -45,8 +47,8 @@ public class ReportsController {
 
         // 現在の従業員情報を取得してモデルに追加
         if (userDetail != null && userDetail.getEmployee() != null) {
-            String employeeCode = userDetail.getEmployee().getCode(); // 現在の従業員コードを取得
-            Employee employee = employeeService.findCurrentEmployee(employeeCode); // 現在の従業員を取得
+            String employeeCode = userDetail.getEmployee().getCode();
+            Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         } else {
             return handleError(model, "従業員情報が不正です。");
@@ -59,21 +61,20 @@ public class ReportsController {
     @PostMapping(value = "/add")
     public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (bindingResult.hasErrors()) {
-            return create(userDetail, model); // 引数を調整
+            return create(userDetail, model);
         }
 
         try {
             reports.setEmployeeCode(userDetail.getEmployee().getCode());
-
             ErrorKinds result = reportsService.save(reports);
             if (result != ErrorKinds.SUCCESS) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(userDetail, model); // 引数を調整
+                return create(userDetail, model);
             }
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            return create(userDetail, model); // 引数を調整
+            return create(userDetail, model);
         } catch (Exception e) {
             return handleError(model, "予期しないエラーが発生しました。");
         }
@@ -88,12 +89,12 @@ public class ReportsController {
             return handleError(model, "無効な日付形式です。正しい形式で入力してください。例: YYYY-MM-DD");
         }
 
-        Reports report = reportsService.findByReportDate(reportDate);
-        if (report == null) {
+        List<Reports> reports = reportsService.findByReportDate(reportDate);
+        if (reports.isEmpty()) {
             return handleError(model, "指定された日報は存在しません。");
         }
 
-        model.addAttribute("reports", report);
+        model.addAttribute("reports", reports.get(0));
         return "reports/detail";
     }
 
