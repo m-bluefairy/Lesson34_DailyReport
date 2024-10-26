@@ -22,7 +22,7 @@ public class Reports {
     @Column(columnDefinition = "DATE", nullable = false)
     @NotNull // 日付が必須であることを示す
     @DateTimeFormat(pattern = "yyyy-MM-dd") // 日付フォーマットを指定
-    private static String reportDate;
+    private String reportDate; // static を削除
 
     // タイトル
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
@@ -60,12 +60,12 @@ public class Reports {
     private String fieldName;
 
     // 日付を取得するメソッド
-    public static String getReportDate() {
+    public String getReportDate() { // static を削除
         return reportDate;
     }
 
     public void setReportDate(@NotNull String reportDate) {
-        Reports.reportDate = reportDate; // setterの名前を修正
+        this.reportDate = reportDate; // static を削除
     }
 
     // fieldNameのgetterとsetter

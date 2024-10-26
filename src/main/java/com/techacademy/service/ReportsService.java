@@ -32,7 +32,7 @@ public class ReportsService {
         }
 
      // 日付重複チェック
-        if (findByReportDate(Reports.getReportDate()) != null) {
+        if (findByReportDate(reports.getReportDate()) != null) {
             return ErrorKinds.DUPLICATE_ERROR;
         }
         reports.setDeleteFlg(false);

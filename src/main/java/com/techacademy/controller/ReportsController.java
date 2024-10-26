@@ -100,7 +100,7 @@ public class ReportsController {
      }
 
      // 登録済みの日報データ = reportDateを日報データを取得
-     String reportDate = Reports.getReportDate();
+     String reportDate = reports.getReportDate();
      Reports savedReports = reportsService.findByReportDate(reportDate);
 
      // 登録済みの日報データにリクエストの項目を設定する
