@@ -89,7 +89,7 @@ public class ReportsController {
      }else{
          model.addAttribute("reports", reportsService.findByReportDate(reportDate));
      }
-     return "repotrs/update";
+     return "reports/update";
  }
     @PostMapping("/{reportDate}/update")
     public String update(@Validated Reports reports, BindingResult res, Model model)  {

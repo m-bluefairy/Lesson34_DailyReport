@@ -2,7 +2,6 @@ package com.techacademy.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,12 +89,6 @@ public class ReportsService {
 	// 日報一覧表示処理
     public List<Reports> findAll() {
         return reportsRepository.findAll();
-    }
-
-    // 1件を検索
-    public Reports findById(Long id) {
-        Optional<Reports> option = reportsRepository.findById(id);
-        return option.orElse(null);
     }
 
     // 現在の日報を取得するメソッド
