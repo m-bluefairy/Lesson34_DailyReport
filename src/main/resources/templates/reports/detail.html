@@ -15,70 +15,65 @@
                 <h1 class="h3 mb-3">日報 詳細</h1>
             </div>
 
-            <div class="mb-3 col-12 col-xxl-6">
-                <div class="col-xl-12">
+ 			 <div class="card">
+             <div class="card-body mb-5">
 
-                    <div class="card">
-                        <div class="card-body mb-5">
+                <div class="wizard wizard-success mb-4">
+                    <table class="table table-striped">
+                        <tr>
+                            <th class="w-25">日付</th>
+                            <td class="form-control" type="date" id="reportDate" value="年/月/日" th:field="*{reportDate}"> </td>
+                        </tr>
+                        <tr>
+                            <th>氏名</th>
+                            <td class="align-middle" th:text="${employee.name}"> </td>
+                        </tr>
+                        <tr>
+                            <th>タイトル</th>
+                            <td class="form-control" type="text" th:field="*{title}"> </td>
+                        </tr>
+                        <tr>
+                            <th>内容</th>
+                            <td class="form-control" id="exampleFormControlTextarea1" rows="5"> </td>
+                        </tr>
+                        <tr>
+                            <th>登録日時</th>
+                            <td class="align-middle" th:text="${#temporals.format(employee.createdAt, 'yyyy-MM-dd hh:mm:ss')}"> </td>
+                        </tr>
+                            <th>更新日時</th>
+                            <td class="align-middle" th:text="${#temporals.format(employee.updatedAt, 'yyyy-MM-dd hh:mm:ss')}"> </td>
+                        </tr>
+                     </table>
 
-                            <div class="wizard wizard-success mb-4">
-                                <table class="table table-striped">
-                                    <tr>
-                                        <th class="w-25">日付</th>
-                                        <td class="align-middle" th:text="${reports.reportDate}"> </td>
-                                    </tr>
-                                    <tr>
-                                        <th>氏名</th>
-                                        <td class="align-middle" th:text="${reports.employee.name}"> </td>
-                                    </tr>
-                                    <tr>
-                                        <th>タイトル</th>
-                                        <td class="align-middle" th:text="${reports.title}"> </td>
-                                    </tr>
-                                    <tr>
-                                        <th>内容</th>
-                                        <td class="align-middle" th:text="${reports.content}"> </td>
-                                    </tr>
-                                    <tr>
-                                        <th>登録日時</th>
-                                        <td class="align-middle" th:text="${#temporals.format(reports.createdAt, 'yyyy-MM-dd HH:mm:ss')}"> </td>
-                                    </tr>
-                                    <tr>
-                                        <th>更新日時</th>
-                                        <td class="align-middle" th:text="${#temporals.format(reports.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"> </td>
-                                    </tr>
-                                </table>
+                    <!-- 更新・削除・戻るボタン -->
+                    <div class="mt-5 row g-1">
+                        <div class="col-auto">
+                            <a th:href="@{/reports/{reportDate}/update(code=${reportDate})}" class="btn btn-primary">更新</a>
+                        </div>
 
-                                <!-- 更新・削除・戻るボタン -->
-                                <div class="mt-5 row g-1">
-                                    <div class="col-auto">
-                                        <a th:href="@{/reports/{reportDate}/update(reportDate=${reports.reportDate})}" class="btn btn-primary">更新</a>
-                                    </div>
+                        <div class="col-auto">
+                        <form name="form" th:action="@{/reports/{reportDate}/delete(code=${reportDate})}" th:method="post">
+                            <input type="submit" value="削除" class="btn btn-primary">
+                        </form>
+                        </div>
 
-                                    <!--<div th:if="${reports != null}">
-                                        <p th:text="${reports.reportDate}"></p>
-                                    </div>-->
-                                    <div th:if="${reports == null}">
-                                        <p>レポートが見つかりません。</p>
-                                    </div>
+                        <div class="col-auto">
+                            <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
+                        </div>
 
-                                    <div class="col-auto">
-                                        <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
-                                    </div>
-                                </div><!--///end_mt-5 row g-1///-->
-                            </div><!--////End_cwizard wizard-success mb-4////-->
+                    </div><!--///end_mt-5 row g-1///-->
+                 </div><!--////End_cwizard wizard-success mb-4////-->
 
-                            <span th:if="${deleteError} != null" th:text="${deleteError}" class="text-danger"></span>
+                 <span th:if="${deleteError} neq null" th:text="${deleteError}" class="text-danger"></span>
 
-                        </div><!--////End_card-body mb-5////-->
-                    </div><!---///end_card///-->
+               </div><!--////End_card-body mb-5////-->
+               </div><!---///end_card///-->
 
-                </div><!--///end_col-xl-12///-->
+               </div><!--///end_col-xl-12///-->
 
             </div><!--///end_mb-3 col-12 col-xxl-6///-->
         </div><!--///end_mt-3 h-100 col-sm-10///-->
    </div><!--///end_row h-100///-->
-
 </body>
 
 </html>

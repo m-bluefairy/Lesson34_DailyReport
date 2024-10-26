@@ -66,4 +66,9 @@ public class UserDetail implements UserDetails {
         // 従業員が有効であればtrueを返す
         return true;
     }
+
+	public Employee getReports() {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
 }

@@ -17,7 +17,6 @@ import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 import com.techacademy.service.EmployeeService;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("reports")
@@ -44,16 +43,14 @@ public class ReportsController {
     @GetMapping(value = "/add")
     public String create(@AuthenticationPrincipal UserDetail userDetail, Model model) {
         model.addAttribute("reports", new Reports());
+        model.addAttribute("title", new Reports());
 
         // 現在の従業員情報を取得してモデルに追加
         if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployee().getCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
-        } else {
-            return handleError(model, "従業員情報が不正です。");
         }
-
         return "reports/new";
     }
 
@@ -65,61 +62,77 @@ public class ReportsController {
         }
 
         try {
-            reports.setEmployeeCode(userDetail.getEmployee().getCode());
             ErrorKinds result = reportsService.save(reports);
-            if (result != ErrorKinds.SUCCESS) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(userDetail, model);
+
+            if (ErrorMessage.contains(result)) {
+            	model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+            	return create(userDetail, model);
             }
+
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(userDetail, model);
-        } catch (Exception e) {
-            return handleError(model, "予期しないエラーが発生しました。");
         }
 
         return "redirect:/reports";
     }
+
+
+    // ----- 追加:ここから -----
+    /** 日報更新画面を表示 */
+    @GetMapping("/{reportDate}/update")
+    public String edit(@PathVariable("reportDate") String reportDate, Model model) {
+     // Modelに登録
+     if(reportDate==null) {
+     	model.addAttribute("reports", new Reports()); // 新規作成時の処理
+     }else{
+         model.addAttribute("reports", reportsService.findByReportDate(reportDate));
+     }
+     return "repotrs/update";
+ }
+    @PostMapping("/{reportDate}/update")
+    public String update(@Validated Reports reports, BindingResult res, Model model)  {
+     if(res.hasErrors()) {
+          // エラーあり
+         model.addAttribute("reports", reports);
+         return "reports/update";
+     }
+
+     // 登録済みの日報データ = reportDateを日報データを取得
+     String reportDate = Reports.getReportDate();
+     Reports savedReports = reportsService.findByReportDate(reportDate);
+
+     // 登録済みの日報データにリクエストの項目を設定する
+     savedReports.setTitle(reports.getTitle());
+     savedReports.setContent(reports.getContent());
+
+     // 日付のエラー表示
+     try {
+         ErrorKinds result = reportsService.update(savedReports, reportDate);
+
+         if (ErrorMessage.contains(result)) {
+             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+             model.addAttribute("reports", savedReports);
+             return "employees/update";
+             }
+
+         } catch (DataIntegrityViolationException e) {
+             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+           return "reports/update";
+           }
+
+     // 一覧画面にリダイレクト
+     return "redirect:/reports";
+    }
+    // ----- 追加:ここまで -----
+
 
     // 日報詳細画面
     @GetMapping(value = "/{reportDate}")
-    public String detail(@PathVariable String reportDate, Model model) {
-        if (!isValidDate(reportDate)) {
-            return handleError(model, "無効な日付形式です。正しい形式で入力してください。例: YYYY-MM-DD");
-        }
+    public String detail(@PathVariable String reportDate, Model model, @AuthenticationPrincipal UserDetail userDetail) {
+    	 model.addAttribute("reports", reportsService.findByReportDate(reportDate));
+         return "reports/detail";
+     }
 
-        List<Reports> reports = reportsService.findByReportDate(reportDate);
-        if (reports.isEmpty()) {
-            return handleError(model, "指定された日報は存在しません。");
-        }
-
-        Reports report = reports.get(0);
-        model.addAttribute("reports", report); // reports という名前でオブジェクトを追加
-        return "reports/detail";
-    }
-
-    // 日付形式を確認するヘルパーメソッド
-    private boolean isValidDate(String date) {
-        return date.matches("\\d{4}-\\d{2}-\\d{2}"); // YYYY-MM-DD形式をチェック
-    }
-
-    // エラーハンドリングメソッド
-    private String handleError(Model model, String errorMessage) {
-        model.addAttribute("errorMessage", errorMessage);
-        return "reports/error"; // エラーページへ遷移
-    }
-
-    // 日付削除処理
-    @PostMapping(value = "/{reportDate}/delete")
-    public String delete(@PathVariable String reportDate, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        ErrorKinds result = reportsService.delete(reportDate, userDetail);
-
-        if (ErrorMessage.contains(result)) {
-            model.addAttribute(ErrorMessage.getErrorReportsDate(result), ErrorMessage.getErrorValue(result));
-            return detail(reportDate, model);
-        }
-
-        return "redirect:/reports";
-    }
 }
