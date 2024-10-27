@@ -62,6 +62,11 @@ public class ReportsController {
             return create(userDetail, model);
         }
 
+        // LocalDate に変換
+        if (reports.getReportDate() != null) {
+            reports.setReportDate(reports.getReportDate());
+        }
+
         try {
             ErrorKinds result = reportsService.save(reports);
 
@@ -116,6 +121,11 @@ public class ReportsController {
         savedReports.setTitle(reports.getTitle());
         savedReports.setContent(reports.getContent());
 
+        // LocalDate に変換
+        if (reports.getReportDate() != null) {
+            savedReports.setReportDate(reports.getReportDate());
+        }
+
         // 日付のエラー表示
         try {
             ErrorKinds result = reportsService.update(savedReports, reports.getReportDate());
@@ -159,5 +169,4 @@ public class ReportsController {
 
         return "reports/detail";
     }
-
 }

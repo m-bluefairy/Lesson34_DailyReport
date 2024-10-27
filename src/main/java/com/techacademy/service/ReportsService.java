@@ -1,5 +1,6 @@
 package com.techacademy.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +44,9 @@ public class ReportsService {
 
     // 日付更新
     @Transactional
-    public ErrorKinds update(Reports reports, String newReportDate) {
-        if (!newReportDate.isEmpty()) {
-            reports.setReportDate(newReportDate);
+    public ErrorKinds update(Reports reports, LocalDate newReportDate) {
+        if (newReportDate != null) {
+            reports.setReportDate(newReportDate); // StringではなくLocalDateに変更
             ErrorKinds result = reportsDateCheck(reports);
             if (ErrorKinds.CHECK_OK != result) {
                 return result;
@@ -62,7 +63,7 @@ public class ReportsService {
 
     // 日付フォーマットチェック
     private ErrorKinds reportsDateCheck(Reports reports) {
-        if (reports.getReportDate() == null || reports.getReportDate().isEmpty()) {
+        if (reports.getReportDate() == null) {
             return ErrorKinds.DATE_FORMAT_ERROR; // 日付フォーマットエラー
         }
         return ErrorKinds.CHECK_OK;
@@ -78,7 +79,8 @@ public class ReportsService {
 
         Reports reports = reportsOpt.get();
 
-        if (userDetail.getReports().getReportList().contains(reports)) {
+        // userDetail.getReports()のチェックを修正
+        if (userDetail.getEmployee().getReportList().contains(reports)) {
             return ErrorKinds.LOGINCHECK_ERROR;
         }
 

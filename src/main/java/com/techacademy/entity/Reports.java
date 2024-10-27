@@ -1,5 +1,6 @@
 package com.techacademy.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -22,7 +23,7 @@ public class Reports {
     @Column(columnDefinition = "DATE", nullable = false)
     @NotNull // 日付が必須であることを示す
     @DateTimeFormat(pattern = "yyyy-MM-dd") // 日付フォーマットを指定
-    private String reportDate; // static を削除
+    private LocalDate reportDate; // String から LocalDate に変更
 
     // タイトル
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
@@ -60,11 +61,11 @@ public class Reports {
     private String fieldName;
 
     // 日付を取得するメソッド
-    public String getReportDate() {
-        return reportDate;
+    public LocalDate getReportDate() {
+        return reportDate; // LocalDate を返す
     }
 
-    public void setReportDate(@NotNull String reportDate) {
+    public void setReportDate(@NotNull LocalDate reportDate) { // 引数を LocalDate に変更
         this.reportDate = reportDate;
     }
 
