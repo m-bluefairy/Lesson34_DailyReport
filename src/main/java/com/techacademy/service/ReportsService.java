@@ -2,6 +2,7 @@ package com.techacademy.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,7 @@ public class ReportsService {
             return result;
         }
 
-        // 日付重複チェック
-        if (!findByReportDate(reports.getReportDate()).isEmpty()) {
-            return ErrorKinds.DUPLICATE_ERROR;
-        }
-
+        // 日付重複チェックを削除し、IDに基づく保存処理を行う
         reports.setDeleteFlg(false);
         LocalDateTime now = LocalDateTime.now();
         reports.setCreatedAt(now);
@@ -73,13 +70,13 @@ public class ReportsService {
 
     // 日報削除
     @Transactional
-    public ErrorKinds delete(String reportDate, UserDetail userDetail) {
-        List<Reports> reportsList = findByReportDate(reportDate);
-        if (reportsList.isEmpty()) {
+    public ErrorKinds delete(Long id, UserDetail userDetail) {
+        Optional<Reports> reportsOpt = findById(id);
+        if (!reportsOpt.isPresent()) {
             return ErrorKinds.DATECHECK_ERROR;
         }
 
-        Reports reports = reportsList.get(0); // 一つ目のレポートを取得
+        Reports reports = reportsOpt.get();
 
         if (userDetail.getReports().getReportList().contains(reports)) {
             return ErrorKinds.LOGINCHECK_ERROR;
@@ -93,9 +90,9 @@ public class ReportsService {
         return ErrorKinds.SUCCESS;
     }
 
-    // 日報取得
-    public List<Reports> findByReportDate(String reportDate) {
-        return reportsRepository.findByReportDate(reportDate);
+    // 日報取得（IDで取得する）
+    public Optional<Reports> findById(Long id) {
+        return reportsRepository.findById(id);
     }
 
     // 日報一覧表示
@@ -103,12 +100,12 @@ public class ReportsService {
         return reportsRepository.findAll();
     }
 
-    // 現在の日報を取得
-    public Reports findCurrenReports(String reportDate) {
-        List<Reports> reportsList = findByReportDate(reportDate);
-        if (reportsList.isEmpty()) {
+    // 現在の日報を取得（IDで取得）
+    public Reports findCurrentReports(Long id) {
+        Optional<Reports> reportsOpt = findById(id);
+        if (!reportsOpt.isPresent()) {
             throw new RuntimeException("日報が見つかりません");
         }
-        return reportsList.get(0); // 一つ目のレポートを返す
+        return reportsOpt.get();
     }
 }

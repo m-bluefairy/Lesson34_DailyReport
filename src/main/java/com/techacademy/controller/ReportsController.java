@@ -17,7 +17,7 @@ import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 import com.techacademy.service.EmployeeService;
 
-import java.util.List; // これを追加
+import java.util.Optional;
 
 @Controller
 @RequestMapping("reports")
@@ -80,18 +80,20 @@ public class ReportsController {
     }
 
     // 日報更新画面を表示
-    @GetMapping("/{reportDate}/update")
-    public String edit(@PathVariable("reportDate") String reportDate, Model model) {
+    @GetMapping("/{id}/update")
+    public String edit(@PathVariable("id") Long id, Model model) {
         // Modelに登録
-        if (reportDate == null) {
-            model.addAttribute("reports", new Reports()); // 新規作成時の処理
-        } else {
-            model.addAttribute("reports", reportsService.findByReportDate(reportDate).get(0)); // 一つ目のレポートを取得
+        Optional<Reports> reportOpt = reportsService.findById(id);
+        if (!reportOpt.isPresent()) {
+            model.addAttribute("errorMessage", "指定された日報が見つかりません。");
+            return "error";
         }
+
+        model.addAttribute("reports", reportOpt.get());
         return "reports/update";
     }
 
-    @PostMapping("/{reportDate}/update")
+    @PostMapping("/{id}/update")
     public String update(@Validated Reports reports, BindingResult res, Model model) {
         if (res.hasErrors()) {
             // エラーあり
@@ -100,8 +102,15 @@ public class ReportsController {
         }
 
         // 登録済みの日報データを取得
-        String reportDate = reports.getReportDate();
-        Reports savedReports = reportsService.findByReportDate(reportDate).get(0); // 一つ目のレポートを取得
+        Long id = reports.getId();
+        Optional<Reports> savedReportsOpt = reportsService.findById(id);
+
+        if (!savedReportsOpt.isPresent()) {
+            model.addAttribute("errorMessage", "指定された日報が見つかりません。");
+            return "error";
+        }
+
+        Reports savedReports = savedReportsOpt.get();
 
         // 登録済みの日報データにリクエストの項目を設定する
         savedReports.setTitle(reports.getTitle());
@@ -109,12 +118,12 @@ public class ReportsController {
 
         // 日付のエラー表示
         try {
-            ErrorKinds result = reportsService.update(savedReports, reportDate);
+            ErrorKinds result = reportsService.update(savedReports, reports.getReportDate());
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 model.addAttribute("reports", savedReports);
-                return "employees/update";
+                return "reports/update";
             }
 
         } catch (DataIntegrityViolationException e) {
@@ -127,17 +136,17 @@ public class ReportsController {
     }
 
     // 日報詳細画面
-    @GetMapping("/{reportDate}")
-    public String showReportDetail(@PathVariable String reportDate, Model model) {
-        List<Reports> reportsList = reportsService.findByReportDate(reportDate);
+    @GetMapping("/{id}")
+    public String showReportDetail(@PathVariable Long id, Model model) {
+        Optional<Reports> reportOpt = reportsService.findById(id);
 
         // 日報が見つからない場合のエラーハンドリング
-        if (reportsList.isEmpty()) {
+        if (!reportOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
             return "error"; // エラーページにリダイレクト
         }
 
-        Reports report = reportsList.get(0); // 一つ目のレポートを取得
+        Reports report = reportOpt.get();
         model.addAttribute("reports", report);
 
         // 従業員情報の取得
