@@ -31,7 +31,7 @@ public class ReportsService {
         }
 
         // 日付重複チェック
-        if (findByReportDate(reports.getReportDate()) != null) {
+        if (!findByReportDate(reports.getReportDate()).isEmpty()) {
             return ErrorKinds.DUPLICATE_ERROR;
         }
 
@@ -74,10 +74,12 @@ public class ReportsService {
     // 日報削除
     @Transactional
     public ErrorKinds delete(String reportDate, UserDetail userDetail) {
-        Reports reports = findByReportDate(reportDate);
-        if (reports == null) {
+        List<Reports> reportsList = findByReportDate(reportDate);
+        if (reportsList.isEmpty()) {
             return ErrorKinds.DATECHECK_ERROR;
         }
+
+        Reports reports = reportsList.get(0); // 一つ目のレポートを取得
 
         if (userDetail.getReports().getReportList().contains(reports)) {
             return ErrorKinds.LOGINCHECK_ERROR;
@@ -92,7 +94,7 @@ public class ReportsService {
     }
 
     // 日報取得
-    public Reports findByReportDate(String reportDate) {
+    public List<Reports> findByReportDate(String reportDate) {
         return reportsRepository.findByReportDate(reportDate);
     }
 
@@ -103,10 +105,10 @@ public class ReportsService {
 
     // 現在の日報を取得
     public Reports findCurrenReports(String reportDate) {
-        Reports reports = findByReportDate(reportDate);
-        if (reports == null) {
+        List<Reports> reportsList = findByReportDate(reportDate);
+        if (reportsList.isEmpty()) {
             throw new RuntimeException("日報が見つかりません");
         }
-        return reports;
+        return reportsList.get(0); // 一つ目のレポートを返す
     }
 }

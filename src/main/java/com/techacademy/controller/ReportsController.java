@@ -17,6 +17,8 @@ import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 import com.techacademy.service.EmployeeService;
 
+import java.util.List; // これを追加
+
 @Controller
 @RequestMapping("reports")
 public class ReportsController {
@@ -84,7 +86,7 @@ public class ReportsController {
         if (reportDate == null) {
             model.addAttribute("reports", new Reports()); // 新規作成時の処理
         } else {
-            model.addAttribute("reports", reportsService.findByReportDate(reportDate));
+            model.addAttribute("reports", reportsService.findByReportDate(reportDate).get(0)); // 一つ目のレポートを取得
         }
         return "reports/update";
     }
@@ -97,9 +99,9 @@ public class ReportsController {
             return "reports/update";
         }
 
-        // 登録済みの日報データ = reportDateを日報データを取得
+        // 登録済みの日報データを取得
         String reportDate = reports.getReportDate();
-        Reports savedReports = reportsService.findByReportDate(reportDate);
+        Reports savedReports = reportsService.findByReportDate(reportDate).get(0); // 一つ目のレポートを取得
 
         // 登録済みの日報データにリクエストの項目を設定する
         savedReports.setTitle(reports.getTitle());
@@ -124,17 +126,18 @@ public class ReportsController {
         return "redirect:/reports";
     }
 
- // 日報詳細画面
+    // 日報詳細画面
     @GetMapping("/{reportDate}")
     public String showReportDetail(@PathVariable String reportDate, Model model) {
-        Reports report = reportsService.findByReportDate(reportDate);
+        List<Reports> reportsList = reportsService.findByReportDate(reportDate);
 
         // 日報が見つからない場合のエラーハンドリング
-        if (report == null) {
+        if (reportsList.isEmpty()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
             return "error"; // エラーページにリダイレクト
         }
 
+        Reports report = reportsList.get(0); // 一つ目のレポートを取得
         model.addAttribute("reports", report);
 
         // 従業員情報の取得

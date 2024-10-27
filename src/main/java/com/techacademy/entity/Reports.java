@@ -60,12 +60,12 @@ public class Reports {
     private String fieldName;
 
     // 日付を取得するメソッド
-    public String getReportDate() { // static を削除
+    public String getReportDate() {
         return reportDate;
     }
 
     public void setReportDate(@NotNull String reportDate) {
-        this.reportDate = reportDate; // static を削除
+        this.reportDate = reportDate;
     }
 
     // fieldNameのgetterとsetter
