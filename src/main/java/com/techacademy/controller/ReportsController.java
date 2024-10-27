@@ -17,7 +17,6 @@ import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 import com.techacademy.service.EmployeeService;
 
-
 @Controller
 @RequestMapping("reports")
 public class ReportsController {
@@ -65,74 +64,88 @@ public class ReportsController {
             ErrorKinds result = reportsService.save(reports);
 
             if (ErrorMessage.contains(result)) {
-            	model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            	return create(userDetail, model);
+                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+                return create(userDetail, model);
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+                ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(userDetail, model);
         }
 
         return "redirect:/reports";
     }
 
-
-    // ----- 追加:ここから -----
-    /** 日報更新画面を表示 */
+    // 日報更新画面を表示
     @GetMapping("/{reportDate}/update")
     public String edit(@PathVariable("reportDate") String reportDate, Model model) {
-     // Modelに登録
-     if(reportDate==null) {
-     	model.addAttribute("reports", new Reports()); // 新規作成時の処理
-     }else{
-         model.addAttribute("reports", reportsService.findByReportDate(reportDate));
-     }
-     return "reports/update";
- }
-    @PostMapping("/{reportDate}/update")
-    public String update(@Validated Reports reports, BindingResult res, Model model)  {
-     if(res.hasErrors()) {
-          // エラーあり
-         model.addAttribute("reports", reports);
-         return "reports/update";
-     }
-
-     // 登録済みの日報データ = reportDateを日報データを取得
-     String reportDate = reports.getReportDate();
-     Reports savedReports = reportsService.findByReportDate(reportDate);
-
-     // 登録済みの日報データにリクエストの項目を設定する
-     savedReports.setTitle(reports.getTitle());
-     savedReports.setContent(reports.getContent());
-
-     // 日付のエラー表示
-     try {
-         ErrorKinds result = reportsService.update(savedReports, reportDate);
-
-         if (ErrorMessage.contains(result)) {
-             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-             model.addAttribute("reports", savedReports);
-             return "employees/update";
-             }
-
-         } catch (DataIntegrityViolationException e) {
-             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-           return "reports/update";
-           }
-
-     // 一覧画面にリダイレクト
-     return "redirect:/reports";
+        // Modelに登録
+        if (reportDate == null) {
+            model.addAttribute("reports", new Reports()); // 新規作成時の処理
+        } else {
+            model.addAttribute("reports", reportsService.findByReportDate(reportDate));
+        }
+        return "reports/update";
     }
-    // ----- 追加:ここまで -----
 
+    @PostMapping("/{reportDate}/update")
+    public String update(@Validated Reports reports, BindingResult res, Model model) {
+        if (res.hasErrors()) {
+            // エラーあり
+            model.addAttribute("reports", reports);
+            return "reports/update";
+        }
 
-    // 日報詳細画面
-    @GetMapping(value = "/{reportDate}")
-    public String detail(@PathVariable String reportDate, Model model, @AuthenticationPrincipal UserDetail userDetail) {
-    	 model.addAttribute("reports", reportsService.findByReportDate(reportDate));
-         return "reports/detail";
-     }
+        // 登録済みの日報データ = reportDateを日報データを取得
+        String reportDate = reports.getReportDate();
+        Reports savedReports = reportsService.findByReportDate(reportDate);
+
+        // 登録済みの日報データにリクエストの項目を設定する
+        savedReports.setTitle(reports.getTitle());
+        savedReports.setContent(reports.getContent());
+
+        // 日付のエラー表示
+        try {
+            ErrorKinds result = reportsService.update(savedReports, reportDate);
+
+            if (ErrorMessage.contains(result)) {
+                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+                model.addAttribute("reports", savedReports);
+                return "employees/update";
+            }
+
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+            return "reports/update";
+        }
+
+        // 一覧画面にリダイレクト
+        return "redirect:/reports";
+    }
+
+ // 日報詳細画面
+    @GetMapping("/{reportDate}")
+    public String showReportDetail(@PathVariable String reportDate, Model model) {
+        Reports report = reportsService.findByReportDate(reportDate);
+
+        // 日報が見つからない場合のエラーハンドリング
+        if (report == null) {
+            model.addAttribute("errorMessage", "指定された日報が見つかりません。");
+            return "error"; // エラーページにリダイレクト
+        }
+
+        model.addAttribute("reports", report);
+
+        // 従業員情報の取得
+        if (report.getEmployee() != null) {
+            Employee employee = employeeService.findCurrentEmployee(report.getEmployee().getCode());
+            model.addAttribute("employee", employee);
+        } else {
+            model.addAttribute("employee", null);
+        }
+
+        return "reports/detail";
+    }
 
 }

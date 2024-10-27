@@ -30,10 +30,11 @@ public class ReportsService {
             return result;
         }
 
-     // 日付重複チェック
+        // 日付重複チェック
         if (findByReportDate(reports.getReportDate()) != null) {
             return ErrorKinds.DUPLICATE_ERROR;
         }
+
         reports.setDeleteFlg(false);
         LocalDateTime now = LocalDateTime.now();
         reports.setCreatedAt(now);
@@ -43,10 +44,10 @@ public class ReportsService {
         return ErrorKinds.SUCCESS;
     }
 
-    // 日付更新（追加）
+    // 日付更新
     @Transactional
     public ErrorKinds update(Reports reports, String newReportDate) {
-        if (newReportDate.isEmpty()) {
+        if (!newReportDate.isEmpty()) {
             reports.setReportDate(newReportDate);
             ErrorKinds result = reportsDateCheck(reports);
             if (ErrorKinds.CHECK_OK != result) {
@@ -54,45 +55,58 @@ public class ReportsService {
             }
         }
 
-    // 更新日時の設定
-        	LocalDateTime now = LocalDateTime.now();
-        	reports.setUpdatedAt(now);
-        	reportsRepository.save(reports);
-
-        	return ErrorKinds.SUCCESS;
-    		}
-
-    private ErrorKinds reportsDateCheck(Reports reports) {
-		// TODO 自動生成されたメソッド・スタブ
-		return null;
-	}
-
-	// 日報削除
-    @Transactional
-    public ErrorKinds delete(String reportDate, UserDetail userDetail) {
-        if (reportDate.equals(userDetail.getReports().getReportList())) {
-            return ErrorKinds.LOGINCHECK_ERROR;
-        }
-        Reports reports = findByReportDate(reportDate);
+        // 更新日時の設定
         LocalDateTime now = LocalDateTime.now();
         reports.setUpdatedAt(now);
-        reports.setDeleteFlg(true);
+        reportsRepository.save(reports);
 
         return ErrorKinds.SUCCESS;
     }
 
-    public Reports findByReportDate(String reportDate) {
-		// TODO 自動生成されたメソッド・スタブ
-		return null;
-	}
+    // 日付フォーマットチェック
+    private ErrorKinds reportsDateCheck(Reports reports) {
+        if (reports.getReportDate() == null || reports.getReportDate().isEmpty()) {
+            return ErrorKinds.DATE_FORMAT_ERROR; // 日付フォーマットエラー
+        }
+        return ErrorKinds.CHECK_OK;
+    }
 
-	// 日報一覧表示処理
+    // 日報削除
+    @Transactional
+    public ErrorKinds delete(String reportDate, UserDetail userDetail) {
+        Reports reports = findByReportDate(reportDate);
+        if (reports == null) {
+            return ErrorKinds.DATECHECK_ERROR;
+        }
+
+        if (userDetail.getReports().getReportList().contains(reports)) {
+            return ErrorKinds.LOGINCHECK_ERROR;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        reports.setUpdatedAt(now);
+        reports.setDeleteFlg(true);
+        reportsRepository.save(reports);
+
+        return ErrorKinds.SUCCESS;
+    }
+
+    // 日報取得
+    public Reports findByReportDate(String reportDate) {
+        return reportsRepository.findByReportDate(reportDate);
+    }
+
+    // 日報一覧表示
     public List<Reports> findAll() {
         return reportsRepository.findAll();
     }
 
-    // 現在の日報を取得するメソッド
+    // 現在の日報を取得
     public Reports findCurrenReports(String reportDate) {
-        return findByReportDate(reportDate);
+        Reports reports = findByReportDate(reportDate);
+        if (reports == null) {
+            throw new RuntimeException("日報が見つかりません");
+        }
+        return reports;
     }
 }

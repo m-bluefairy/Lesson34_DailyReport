@@ -19,7 +19,9 @@ public enum ErrorKinds {
     // 日付チェックエラー
     DATECHECK_ERROR,
     // 日付無効エラー
-    INVALID_DATE, 
+    INVALID_DATE,
+    // 日付フォーマットエラー (追加)
+    DATE_FORMAT_ERROR,
     // チェックOK
     CHECK_OK,
     // 正常終了
