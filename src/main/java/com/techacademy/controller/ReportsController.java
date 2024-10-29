@@ -59,33 +59,31 @@ public class ReportsController {
     }
 
     // 日報新規登録処理
+ // 日報新規登録処理
     @PostMapping(value = "/add")
     public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (bindingResult.hasErrors()) {
             return create(userDetail, model);
         }
 
-        // LocalDate に変換
-        if (reports.getReportDate() != null) {
-            reports.setReportDate(reports.getReportDate());
-        }
+        // ログイン中の従業員情報を取得し、社員番号を設定
+        Employee employee = userDetail.getEmployee();
+        String employeeCode = employee.getCode(); // 社員番号を取得
 
-        try {
-            ErrorKinds result = reportsService.save(reports);
+        // Reportsエンティティに設定する
+        reports.setEmployee(employee); // 従業員オブジェクトを設定（必要に応じて）
 
-            if (ErrorMessage.contains(result)) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(userDetail, model);
-            }
+        // 日報を保存
+        ErrorKinds result = reportsService.save(reports, employeeCode); // 社員番号を渡す
 
-        } catch (DataIntegrityViolationException e) {
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+        if (ErrorMessage.contains(result)) {
+            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
             return create(userDetail, model);
         }
 
-        return "redirect:/reports";
+        return "redirect:/reports"; // 登録成功時に一覧へリダイレクト
     }
+
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
@@ -234,7 +232,7 @@ public class ReportsController {
         return "reports/detail";
     }
 
- // 日報削除処理
+    // 日報削除処理
     @PostMapping("/{id}/delete")
     public String deleteReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

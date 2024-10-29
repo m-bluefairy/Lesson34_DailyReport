@@ -26,18 +26,19 @@ public class ReportsService {
 
     // 日報保存
     @Transactional
-    public ErrorKinds save(Reports reports) {
+    public ErrorKinds save(Reports reports, String employeeCode) { // employeeCodeを引数として追加
         // 日付チェック
         ErrorKinds result = reportsDateCheck(reports);
         if (ErrorKinds.CHECK_OK != result) {
             return result;
         }
 
-        // 日付重複チェックを削除し、IDに基づく保存処理を行う
-        reports.setDeleteFlg(false);
+        // 日報に必要な情報を設定
+        reports.setEmployeeCode(employeeCode); // 社員番号を設定
+        reports.setDeleteFlg(false); // 削除フラグをfalseに設定
         LocalDateTime now = LocalDateTime.now();
-        reports.setCreatedAt(now);
-        reports.setUpdatedAt(now);
+        reports.setCreatedAt(now); // 登録日時を設定
+        reports.setUpdatedAt(now); // 更新日時を設定
 
         reportsRepository.save(reports);
         return ErrorKinds.SUCCESS;
