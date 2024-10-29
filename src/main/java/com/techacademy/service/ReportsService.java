@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,25 +72,12 @@ public class ReportsService {
 
     // 日報削除
     @Transactional
-    public ErrorKinds delete(Long id, UserDetail userDetail) {
-        Optional<Reports> reportsOpt = findById(id);
-        if (!reportsOpt.isPresent()) {
-            return ErrorKinds.DATECHECK_ERROR;
+    public void deleteReport(Long id) throws DataIntegrityViolationException {
+        if (reportsRepository.existsById(id)) {
+            reportsRepository.deleteById(id);
+        } else {
+            throw new DataIntegrityViolationException("指定された日報が見つかりません。");
         }
-
-        Reports reports = reportsOpt.get();
-
-        // userDetail.getReports()のチェックを修正
-        if (userDetail.getEmployee().getReportList().contains(reports)) {
-            return ErrorKinds.LOGINCHECK_ERROR;
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        reports.setUpdatedAt(now);
-        reports.setDeleteFlg(true);
-        reportsRepository.save(reports);
-
-        return ErrorKinds.SUCCESS;
     }
 
     // 日報取得（IDで取得する）

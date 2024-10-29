@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes; // これを追加
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
@@ -232,4 +233,18 @@ public class ReportsController {
 
         return "reports/detail";
     }
+
+ // 日報削除処理
+    @PostMapping("/{id}/delete")
+    public String deleteReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            reportsService.deleteReport(id); // エラー解消
+            redirectAttributes.addFlashAttribute("message", "日報が削除されました。");
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "削除に失敗しました。関連データが存在する可能性があります。");
+        }
+
+        return "redirect:/reports"; // 削除後のリダイレクト先
+    }
+
 }
