@@ -88,7 +88,7 @@ public class ReportsController {
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
-    public String edit(@PathVariable("id") Long id, Model model) {
+    public String edit(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         // Modelに登録
         Optional<Reports> reportOpt = reportsService.findById(id);
         if (!reportOpt.isPresent()) {
@@ -97,6 +97,14 @@ public class ReportsController {
         }
 
         model.addAttribute("reports", reportOpt.get());
+
+        // 従業員情報の取得
+        if (userDetail != null && userDetail.getEmployee() != null) {
+            String employeeCode = userDetail.getEmployee().getCode();
+            Employee employee = employeeService.findCurrentEmployee(employeeCode);
+            model.addAttribute("employee", employee);
+        }
+
         return "reports/update";
     }
 
@@ -216,5 +224,4 @@ public class ReportsController {
 
         return "reports/detail";
     }
-
 }

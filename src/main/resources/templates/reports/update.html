@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="common/header :: head_fragment(title=日報 更新)"></head>
+<head th:replace="common/header :: head_fragment(title='日報 更新')"></head>
 
 <body class="h-100 overflow-hidden">
    <div class="row h-100">
@@ -51,10 +51,7 @@
                                 <label class="form-label" for="title">内容</label>
                               	<textarea class="form-control" id="exampleFormControlTextarea1" rows="5"> </textarea>
 
-                               		<!--<input class="form-control" type="text" th:field="*{content}" th:errorclass="${#fields.hasErrors('content') ? 'error' : ''}" id="content">
-                                    <span th:errors="*{content}" class="text-danger"> </span>
-                                    <span th:if="${contentError} neq null" th:text="${contentError}" class="text-danger"> </span>-->
-
+                        		</div>
 							</div>
 
 
