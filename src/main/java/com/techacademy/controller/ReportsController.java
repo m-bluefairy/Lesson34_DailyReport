@@ -17,6 +17,8 @@ import com.techacademy.service.ReportsService;
 import com.techacademy.service.UserDetail;
 import com.techacademy.service.EmployeeService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 @Controller
@@ -147,7 +149,7 @@ public class ReportsController {
 
     // 日報詳細画面
     @GetMapping("/{id}")
-    public String showReportDetail(@PathVariable Long id, Model model) {
+    public String showReportDetail(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
         Optional<Reports> reportOpt = reportsService.findById(id);
 
         // 日報が見つからない場合のエラーハンドリング
@@ -167,6 +169,52 @@ public class ReportsController {
             model.addAttribute("employee", null);
         }
 
+        // 日付を解析
+        if (date != null) {
+            try {
+                LocalDate parsedDate = LocalDate.parse(date);
+                model.addAttribute("parsedDate", parsedDate);
+            } catch (DateTimeParseException e) {
+                model.addAttribute("errorMessage", "Invalid date format. Please use yyyy-MM-dd.");
+            }
+        }
+
         return "reports/detail";
     }
+
+    // 日報詳細画面 (/reports/{id}/detail)
+    @GetMapping("/{id}/detail")
+    public String showReportDetailWithDetailPath(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
+        Optional<Reports> reportOpt = reportsService.findById(id);
+
+        // 日報が見つからない場合のエラーハンドリング
+        if (!reportOpt.isPresent()) {
+            model.addAttribute("errorMessage", "指定された日報が見つかりません。");
+            return "error"; // エラーページにリダイレクト
+        }
+
+        Reports report = reportOpt.get();
+        model.addAttribute("reports", report);
+
+        // 従業員情報の取得
+        if (report.getEmployee() != null) {
+            Employee employee = employeeService.findCurrentEmployee(report.getEmployee().getCode());
+            model.addAttribute("employee", employee);
+        } else {
+            model.addAttribute("employee", null);
+        }
+
+        // 日付を解析
+        if (date != null) {
+            try {
+                LocalDate parsedDate = LocalDate.parse(date);
+                model.addAttribute("parsedDate", parsedDate);
+            } catch (DateTimeParseException e) {
+                model.addAttribute("errorMessage", "Invalid date format. Please use yyyy-MM-dd.");
+            }
+        }
+
+        return "reports/detail";
+    }
+
 }

@@ -26,11 +26,46 @@
                             </tr>
                             <tr th:if="${employee != null}">
                                 <th>氏名</th>
-                                <td th:text="${employee.name}"> </td>
+                                <td th:text="${employee.name}"></td>
                             </tr>
                             <tr th:if="${employee == null}">
                                 <th>氏名</th>
                                 <td>未登録</td>
                             </tr>
-                            <tr th:if="${reports != null}">
+                            <tr>
+                                <th>タイトル</th>
+                                <td th:text="${reports.title}"></td>
+                            </tr>
+                            <tr>
+                                <th>内容</th>
+                                <td th:text="${reports.content}"></td>
+                            </tr>
+                        </table>
 
+                        <!-- 更新・削除・戻るボタン -->
+                        <div class="mt-5 row g-1">
+                            <div class="col-auto">
+                                <a th:href="@{/reports/{id}/update(date=${#temporals.format(reports.reportDate, 'yyyy-MM-dd')})}" class="btn btn-primary">更新</a>
+                            </div>
+
+                            <div class="col-auto">
+                                <form name="form" th:action="@{/reports/{id}/delete(date=${#temporals.format(reports.reportDate, 'yyyy-MM-dd')})}" th:method="post">
+                                    <input type="submit" value="削除" class="btn btn-primary">
+                                </form>
+                            </div>
+
+                            <div class="col-auto">
+                                <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span th:if="${deleteError != null}" th:text="${deleteError}" class="text-danger"></span>
+
+                </div><!--////End_card-body mb-5////-->
+            </div><!---///end_card///-->
+        </div><!--///end_mt-3 h-100 col-sm-10///-->
+   </div><!--///end_row h-100///-->
+</body>
+
+</html>
