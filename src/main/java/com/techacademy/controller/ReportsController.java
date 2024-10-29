@@ -108,10 +108,10 @@ public class ReportsController {
         return "reports/update";
     }
 
+    // 日報更新処理
     @PostMapping("/{id}/update")
-    public String update(@Validated Reports reports, BindingResult res, Model model) {
+    public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
-            // エラーあり
             model.addAttribute("reports", reports);
             return "reports/update";
         }
@@ -136,6 +136,13 @@ public class ReportsController {
             savedReports.setReportDate(reports.getReportDate());
         }
 
+        // 従業員情報の取得
+        if (userDetail != null && userDetail.getEmployee() != null) {
+            String employeeCode = userDetail.getEmployee().getCode();
+            Employee employee = employeeService.findCurrentEmployee(employeeCode);
+            model.addAttribute("employee", employee);
+        }
+
         // 日付のエラー表示
         try {
             ErrorKinds result = reportsService.update(savedReports, reports.getReportDate());
@@ -148,6 +155,7 @@ public class ReportsController {
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+            model.addAttribute("reports", savedReports); // 失敗時に再表示するために追加
             return "reports/update";
         }
 
