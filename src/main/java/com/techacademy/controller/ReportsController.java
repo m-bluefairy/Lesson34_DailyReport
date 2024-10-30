@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes; // これを追加
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
@@ -59,11 +59,10 @@ public class ReportsController {
     }
 
     // 日報新規登録処理
- // 日報新規登録処理
     @PostMapping(value = "/add")
     public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (bindingResult.hasErrors()) {
-            return create(userDetail, model);
+            return create(userDetail, model); // エラーがある場合、再度新規作成画面に戻る
         }
 
         // ログイン中の従業員情報を取得し、社員番号を設定
@@ -78,12 +77,11 @@ public class ReportsController {
 
         if (ErrorMessage.contains(result)) {
             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            return create(userDetail, model);
+            return create(userDetail, model); // エラー発生時、同じ画面に戻る
         }
 
         return "redirect:/reports"; // 登録成功時に一覧へリダイレクト
     }
-
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
@@ -112,7 +110,7 @@ public class ReportsController {
     public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
             model.addAttribute("reports", reports);
-            return "reports/update";
+            return "reports/update"; // エラーがある場合、更新画面に戻る
         }
 
         // 登録済みの日報データを取得
@@ -149,7 +147,7 @@ public class ReportsController {
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 model.addAttribute("reports", savedReports);
-                return "reports/update";
+                return "reports/update"; // エラー発生時、同じ画面に戻る
             }
 
         } catch (DataIntegrityViolationException e) {
@@ -197,41 +195,6 @@ public class ReportsController {
         return "reports/detail";
     }
 
-    // 日報詳細画面 (/reports/{id}/detail)
-    @GetMapping("/{id}/detail")
-    public String showReportDetailWithDetailPath(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
-        Optional<Reports> reportOpt = reportsService.findById(id);
-
-        // 日報が見つからない場合のエラーハンドリング
-        if (!reportOpt.isPresent()) {
-            model.addAttribute("errorMessage", "指定された日報が見つかりません。");
-            return "error"; // エラーページにリダイレクト
-        }
-
-        Reports report = reportOpt.get();
-        model.addAttribute("reports", report);
-
-        // 従業員情報の取得
-        if (report.getEmployee() != null) {
-            Employee employee = employeeService.findCurrentEmployee(report.getEmployee().getCode());
-            model.addAttribute("employee", employee);
-        } else {
-            model.addAttribute("employee", null);
-        }
-
-        // 日付を解析
-        if (date != null) {
-            try {
-                LocalDate parsedDate = LocalDate.parse(date);
-                model.addAttribute("parsedDate", parsedDate);
-            } catch (DateTimeParseException e) {
-                model.addAttribute("errorMessage", "Invalid date format. Please use yyyy-MM-dd.");
-            }
-        }
-
-        return "reports/detail";
-    }
-
     // 日報削除処理
     @PostMapping("/{id}/delete")
     public String deleteReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -244,5 +207,4 @@ public class ReportsController {
 
         return "redirect:/reports"; // 削除後のリダイレクト先
     }
-
 }

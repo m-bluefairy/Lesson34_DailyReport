@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.validation.constraints.Size;
+
 @Data
 @Entity
 @Table(name = "reports")
@@ -21,18 +23,20 @@ public class Reports {
 
     // 日付
     @Column(columnDefinition = "DATE", nullable = false)
-    @NotNull // 日付が必須であることを示す
+    @NotNull(message = "値を入力してください") // 日付が必須であることを示す
     @DateTimeFormat(pattern = "yyyy-MM-dd") // 日付フォーマットを指定
     private LocalDate reportDate; // String から LocalDate に変更
 
     // タイトル
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
-    @NotEmpty(message = "タイトルは必須です。") // バリデーションメッセージを追加
+    @NotEmpty(message = "値を入力してください") // 必須チェック
+    @Size(max = 600, message = "600文字以下で入力してください") // 桁数チェック
     private String title;
 
     // 内容
     @Column(columnDefinition = "LONGTEXT", nullable = false)
-    @NotEmpty(message = "内容は必須です。") // バリデーションメッセージを追加
+    @NotEmpty(message = "値を入力してください") // 必須チェック
+    @Size(max = 100, message = "100文字以下で入力してください") // 桁数チェック
     private String content;
 
     // 社員番号
