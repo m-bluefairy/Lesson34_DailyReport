@@ -42,7 +42,6 @@
                                         <label class="form-label" for="title">タイトル</label>
                                         <div class="col-md-7">
                                             <input class="form-control" type="text" th:field="*{title}" id="title" />
-                                            <span th:errors="*{title}" class="text-danger"></span>
                                             <div th:if="${#fields.hasErrors('title')}" class="text-danger">
                                                 <span th:if="${#fields.hasErrors('title') && #fields.errorCount('title') > 0}"
                                                       th:text="${#fields.getErrors('title')[0]}">値を入力してください</span>
@@ -55,10 +54,11 @@
                                     <div class="form-group">
                                         <label for="content">内容</label>
                                         <textarea th:field="*{content}" class="form-control" rows="5" required></textarea>
-                                        <span th:errors="*{content}" class="text-danger"></span>
                                         <div th:if="${#fields.hasErrors('content')}" class="text-danger">
                                             <span th:if="${#fields.hasErrors('content') && #fields.errorCount('content') > 0}"
                                                   th:text="${#fields.getErrors('content')[0]}">値を入力してください</span>
+                                            <span th:if="${#fields.hasErrors('content') && #fields.errorCount('content') == 1}"
+                                                  th:text="'1000文字以下で入力してください'">1000文字以下で入力してください</span>
                                         </div>
                                     </div>
                                 </div>

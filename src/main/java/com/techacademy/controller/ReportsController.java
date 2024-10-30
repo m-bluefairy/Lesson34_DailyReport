@@ -161,7 +161,7 @@ public class ReportsController {
     }
 
     // 日報詳細画面
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/detail")
     public String showReportDetail(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
         Optional<Reports> reportOpt = reportsService.findById(id);
 
