@@ -70,7 +70,7 @@ public class ReportsController {
         String employeeCode = employee.getCode(); // 社員番号を取得
 
         // Reportsエンティティに設定する
-        reports.setEmployee(employee); // 従業員オブジェクトを設定（必要に応じて）
+        reports.setEmployee(employee);
 
         // 日報を保存
         ErrorKinds result = reportsService.save(reports, employeeCode); // 社員番号を渡す
@@ -82,6 +82,7 @@ public class ReportsController {
 
         return "redirect:/reports"; // 登録成功時に一覧へリダイレクト
     }
+
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")

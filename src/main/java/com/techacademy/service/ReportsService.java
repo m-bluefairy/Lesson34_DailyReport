@@ -30,6 +30,7 @@ public class ReportsService {
         // 日付チェック
         ErrorKinds result = reportsDateCheck(reports);
         if (ErrorKinds.CHECK_OK != result) {
+            logErrors(result);
             return result;
         }
 
@@ -51,6 +52,7 @@ public class ReportsService {
             reports.setReportDate(newReportDate); // StringではなくLocalDateに変更
             ErrorKinds result = reportsDateCheck(reports);
             if (ErrorKinds.CHECK_OK != result) {
+                logErrors(result);
                 return result;
             }
         }
@@ -69,6 +71,18 @@ public class ReportsService {
             return ErrorKinds.DATE_FORMAT_ERROR; // 日付フォーマットエラー
         }
         return ErrorKinds.CHECK_OK;
+    }
+
+    // エラーログの出力
+    private void logErrors(ErrorKinds error) {
+        switch (error) {
+            case DATE_FORMAT_ERROR:
+                System.out.println("エラー: 日付が未入力です。");
+                break;
+            // 他のエラータイプがあればここに追加
+            default:
+                break;
+        }
     }
 
     // 日報削除
