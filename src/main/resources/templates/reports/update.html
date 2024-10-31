@@ -63,8 +63,10 @@
                                     </div>
 
                                 </div><!--//end_wizard wizard-success mb-4//-->
-                                <!-- エラーメッセージ表示エリア -->
-                                <div th:if="${errorMessage}" class="text-danger mb-3" th:text="${errorMessage}"></div>
+                                <!-- エラーメッセージ全体の表示 -->
+                                <div th:if="${errorMessage}" class="text-danger">
+                                    <span th:text="${errorMessage}"></span>
+                                </div>
 
                                 <!-- ボタンエリア -->
                                 <div class="mt-5 row g-1">

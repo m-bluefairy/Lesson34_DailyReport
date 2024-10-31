@@ -106,12 +106,16 @@ public class ReportsController {
         return "reports/update";
     }
 
-    // 日報更新処理
+ // 日報更新処理
+ // 日報更新処理
     @PostMapping("/{id}/update")
     public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
+        // エラーチェック
         if (res.hasErrors()) {
             model.addAttribute("reports", reports);
-            return edit(reports.getId(), userDetail, model); // エラーがある場合、更新画面に戻る
+            // エラーメッセージを追加する
+            model.addAttribute("errorMessage", "入力にエラーがあります。");
+            return "reports/update"; // エラーがある場合、更新画面に戻る
         }
 
         Long id = reports.getId();
@@ -143,18 +147,19 @@ public class ReportsController {
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                model.addAttribute("reports", savedReports);
-                return edit(savedReports.getId(), userDetail, model); // エラー発生時、同じ画面に戻る
+                model.addAttribute("reports", savedReports); // エラー発生時、同じ画面に戻るために更新されたreportsを渡す
+                return "reports/update";
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             model.addAttribute("reports", savedReports); // 失敗時に再表示するために追加
-            return edit(savedReports.getId(), userDetail, model);
+            return "reports/update";
         }
 
-        return "redirect:/reports";
+        return "redirect:/reports"; // 成功時にリダイレクト
     }
+
 
     // 日報詳細画面
     @GetMapping("/{id}/detail")
