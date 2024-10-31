@@ -4,7 +4,7 @@
 <head th:replace="common/header :: head_fragment(title='日報 更新')"></head>
 
 <body class="h-100 overflow-hidden">
-   <div class="row h-100">
+    <div class="row h-100">
         <div class="h-100 p-3 mb-2 bg-dark text-white col-sm-2">
             <nav th:replace="common/side :: copy"></nav>
         </div>
@@ -15,12 +15,9 @@
                 <h1 class="h3 mb-3">日報 更新</h1>
             </div>
 
-            <div class="mb-3 col-12 col-xxl-6">
+            <div class="col-12 col-xxl-6">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header">
-                            <!-- Optional header content -->
-                        </div>
                         <div class="card-body">
                             <form method="post" th:action="@{/reports/{id}/update(id=${reports.id})}" th:object="${reports}">
                                 <div class="wizard wizard-success mb-4">
@@ -28,33 +25,46 @@
                                     <!-- 日付入力 -->
                                     <div class="col-md-4">
                                         <label for="reportDate" class="pt-2 pr-2">日付</label>
-                                        <input class="form-control" type="date" id="reportDate" th:field="*{reportDate}" th:errorclass="is-invalid" required>
-                                        <span th:errors="*{reportDate}" class="text-danger">値を入力してください</span> <!-- 日付のエラーメッセージ -->
+                                        <input class="form-control" type="date" id="reportDate" th:field="*{reportDate}" th:errorclass="is-invalid" required />
+                                        <!-- 日付のエラーメッセージ -->
+                                        <div th:if="${#fields.hasErrors('reportDate')}" class="text-danger">
+                                            <span th:text="${#fields.errors('reportDate')[0]}">値を入力してください</span>
+                                        </div>
                                     </div>
 
                                     <!-- 氏名表示 -->
                                     <div class="mb-3">
-                                        <div th:if="${employee != null}">氏名</div>
-                                        <span th:text="${employee.name}"></span>
+                                        <label class="form-label">氏名</label>
+                                        <p class="mb-1" th:text="${employee.name}"></p>
                                     </div>
 
                                     <!-- タイトル入力 -->
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{title}" th:errorclass="is-invalid" id="title" required>
-                                            <span th:errors="*{title}" class="text-danger">値を入力してください</span> <!-- タイトルのエラーメッセージ -->
+                                            <input class="form-control" type="text" th:field="*{title}" id="title" required maxlength="100" />
+                                            <!-- タイトルのエラーメッセージ -->
+                                            <div th:if="${#fields.hasErrors('title')}" class="text-danger">
+                                                <span th:if="${#fields.errors('title')[0].contains('length')}" th:text="'100文字以下で入力してください'">100文字以下で入力してください</span>
+                                                <span th:if="!${#fields.errors('title')[0].contains('length')}" th:text="${#fields.errors('title')[0]}">値を入力してください</span>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- 内容入力 -->
                                     <div class="mb-3">
                                         <label class="form-label" for="content">内容</label>
-                                        <textarea class="form-control" id="content" th:field="*{content}" rows="8" th:errorclass="is-invalid" required></textarea>
-                                        <span th:errors="*{content}" class="text-danger">600文字以下で入力してください</span> <!-- 内容のエラーメッセージ -->
+                                        <textarea class="form-control" id="content" th:field="*{content}" rows="8" required maxlength="600"></textarea>
+                                        <!-- 内容のエラーメッセージ -->
+                                        <div th:if="${#fields.hasErrors('content')}" class="text-danger">
+                                            <span th:if="${#fields.errors('content')[0].contains('length')}" th:text="'600文字以下で入力してください'">600文字以下で入力してください</span>
+                                            <span th:if="!${#fields.errors('content')[0].contains('length')}" th:text="${#fields.errors('content')[0]}">値を入力してください</span>
+                                        </div>
                                     </div>
 
                                 </div><!--//end_wizard wizard-success mb-4//-->
+                                <!-- エラーメッセージ表示エリア -->
+                                <div th:if="${errorMessage}" class="text-danger mb-3" th:text="${errorMessage}"></div>
 
                                 <!-- ボタンエリア -->
                                 <div class="mt-5 row g-1">
@@ -65,7 +75,6 @@
                                         <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
                                     </div>
                                 </div>
-
                             </form>
                         </div><!--///end_card-body///-->
                     </div><!--///end_card///-->

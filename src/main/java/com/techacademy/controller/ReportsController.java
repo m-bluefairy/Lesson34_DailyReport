@@ -45,13 +45,13 @@ public class ReportsController {
 
     // 日報新規登録画面
     @GetMapping(value = "/add")
-    public String create(@AuthenticationPrincipal UserDetail userDetail, Model model) {
-        model.addAttribute("reports", new Reports());
+    public String create(@AuthenticationPrincipal UserDetail userDetail, Model model, @ModelAttribute Reports reports) {
+        model.addAttribute("reports", reports); // エラーのあるreportsオブジェクトをモデルに追加
         model.addAttribute("title", new Reports());
 
         // 現在の従業員情報を取得してモデルに追加
         if (userDetail != null && userDetail.getCurrentEmployee() != null) {
-            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
+            String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }
@@ -62,7 +62,7 @@ public class ReportsController {
     @PostMapping(value = "/add")
     public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (bindingResult.hasErrors()) {
-            return create(userDetail, model); // エラーがある場合、再度新規作成画面に戻る
+            return create(userDetail, model, reports); // エラーがある場合、エラーのあるreportsを渡して再表示
         }
 
         // ユーザーから従業員情報を取得
@@ -71,14 +71,14 @@ public class ReportsController {
             reports.setEmployeeCode(employeeCode); // Reportsオブジェクトに従業員コードを設定
         } else {
             model.addAttribute("errorMessage", "従業員情報が取得できません。");
-            return create(userDetail, model); // 従業員情報が取得できない場合、エラーメッセージを表示
+            return create(userDetail, model, reports); // 従業員情報が取得できない場合、エラーメッセージを表示
         }
 
         ErrorKinds saveResult = reportsService.save(reports, reports.getEmployeeCode()); // 新規日報を保存
 
         if (saveResult != ErrorKinds.SUCCESS) {
             model.addAttribute("errorMessage", saveResult.getMessage()); // エラーメッセージをモデルに追加
-            return create(userDetail, model); // エラーがあった場合、再度新規作成画面に戻る
+            return create(userDetail, model, reports); // エラーがあった場合、再度新規作成画面に戻る
         }
 
         // 新規登録成功時に日報一覧画面へリダイレクト
@@ -88,7 +88,6 @@ public class ReportsController {
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
     public String edit(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        // Modelに登録
         Optional<Reports> reportOpt = reportsService.findById(id);
         if (!reportOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
@@ -99,7 +98,7 @@ public class ReportsController {
 
         // 従業員情報の取得
         if (userDetail != null && userDetail.getCurrentEmployee() != null) {
-            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
+            String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }
@@ -112,10 +111,9 @@ public class ReportsController {
     public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
             model.addAttribute("reports", reports);
-            return "reports/update"; // エラーがある場合、更新画面に戻る
+            return edit(reports.getId(), userDetail, model); // エラーがある場合、更新画面に戻る
         }
 
-        // 登録済みの日報データを取得
         Long id = reports.getId();
         Optional<Reports> savedReportsOpt = reportsService.findById(id);
 
@@ -125,19 +123,16 @@ public class ReportsController {
         }
 
         Reports savedReports = savedReportsOpt.get();
-
-        // 登録済みの日報データにリクエストの項目を設定する
         savedReports.setTitle(reports.getTitle());
         savedReports.setContent(reports.getContent());
 
-        // LocalDate に変換
         if (reports.getReportDate() != null) {
             savedReports.setReportDate(reports.getReportDate());
         }
 
         // 従業員情報の取得
         if (userDetail != null && userDetail.getCurrentEmployee() != null) {
-            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
+            String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }
@@ -149,16 +144,15 @@ public class ReportsController {
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 model.addAttribute("reports", savedReports);
-                return "reports/update"; // エラー発生時、同じ画面に戻る
+                return edit(savedReports.getId(), userDetail, model); // エラー発生時、同じ画面に戻る
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             model.addAttribute("reports", savedReports); // 失敗時に再表示するために追加
-            return "reports/update";
+            return edit(savedReports.getId(), userDetail, model);
         }
 
-        // 一覧画面にリダイレクト
         return "redirect:/reports";
     }
 
@@ -167,7 +161,6 @@ public class ReportsController {
     public String showReportDetail(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
         Optional<Reports> reportOpt = reportsService.findById(id);
 
-        // 日報が見つからない場合のエラーハンドリング
         if (!reportOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
             return "error"; // エラーページにリダイレクト
@@ -201,7 +194,7 @@ public class ReportsController {
     @PostMapping("/{id}/delete")
     public String deleteReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            reportsService.deleteReport(id); // エラー解消
+            reportsService.deleteReport(id);
             redirectAttributes.addFlashAttribute("message", "日報が削除されました。");
         } catch (DataIntegrityViolationException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "削除に失敗しました。関連データが存在する可能性があります。");
