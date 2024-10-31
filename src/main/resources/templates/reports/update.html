@@ -25,33 +25,38 @@
                             <form method="post" th:action="@{/reports/{id}/update(id=${reports.id})}" th:object="${reports}">
                                 <div class="wizard wizard-success mb-4">
 
+                                    <!-- 日付入力 -->
                                     <div class="col-md-4">
                                         <label for="reportDate" class="pt-2 pr-2">日付</label>
-                                        <input class="form-control" type="date" id="reportDate" th:field="*{reportDate}" th:errorclass="err" required>
-                                        <span th:errors="*{reportDate}" class="text-danger"></span> <!-- 日付のエラーメッセージ -->
+                                        <input class="form-control" type="date" id="reportDate" th:field="*{reportDate}" th:errorclass="is-invalid" required>
+                                        <span th:errors="*{reportDate}" class="text-danger">値を入力してください</span> <!-- 日付のエラーメッセージ -->
                                     </div>
 
+                                    <!-- 氏名表示 -->
                                     <div class="mb-3">
                                         <div th:if="${employee != null}">氏名</div>
                                         <span th:text="${employee.name}"></span>
                                     </div>
 
+                                    <!-- タイトル入力 -->
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{title}" th:errorclass="err" id="title" required>
-                                            <span th:errors="*{title}" class="text-danger"></span> <!-- タイトルのエラーメッセージ -->
+                                            <input class="form-control" type="text" th:field="*{title}" th:errorclass="is-invalid" id="title" required>
+                                            <span th:errors="*{title}" class="text-danger">値を入力してください</span> <!-- タイトルのエラーメッセージ -->
                                         </div>
                                     </div>
 
+                                    <!-- 内容入力 -->
                                     <div class="mb-3">
                                         <label class="form-label" for="content">内容</label>
-                                        <textarea class="form-control" id="content" th:field="*{content}" rows="3" required></textarea>
-                                        <span th:errors="*{content}" class="text-danger"></span> <!-- 内容のエラーメッセージ -->
+                                        <textarea class="form-control" id="content" th:field="*{content}" rows="8" th:errorclass="is-invalid" required></textarea>
+                                        <span th:errors="*{content}" class="text-danger">600文字以下で入力してください</span> <!-- 内容のエラーメッセージ -->
                                     </div>
 
                                 </div><!--//end_wizard wizard-success mb-4//-->
 
+                                <!-- ボタンエリア -->
                                 <div class="mt-5 row g-1">
                                     <div class="col-auto">
                                         <input type="submit" value="更新" class="btn btn-primary">
@@ -60,6 +65,7 @@
                                         <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
                                     </div>
                                 </div>
+
                             </form>
                         </div><!--///end_card-body///-->
                     </div><!--///end_card///-->

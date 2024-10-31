@@ -40,6 +40,13 @@
                                 <th>内容</th>
                                 <td th:text="${reports.content}"></td>
                             </tr>
+                            <tr>
+                            	<th>登録日時</th>
+                            	<td class="align-middle" th:text="${#temporals.format(reports.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        	</tr>
+                            	<th>更新日時</th>
+                            	<td class="align-middle" th:text="${#temporals.format(reports.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
                         </table>
 
                         <!-- 更新・削除・戻るボタン -->
