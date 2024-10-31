@@ -50,8 +50,8 @@ public class ReportsController {
         model.addAttribute("title", new Reports());
 
         // 現在の従業員情報を取得してモデルに追加
-        if (userDetail != null && userDetail.getEmployee() != null) {
-            String employeeCode = userDetail.getEmployee().getCode();
+        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }
@@ -65,24 +65,25 @@ public class ReportsController {
             return create(userDetail, model); // エラーがある場合、再度新規作成画面に戻る
         }
 
-        // ログイン中の従業員情報を取得し、社員番号を設定
-        Employee employee = userDetail.getEmployee();
-        String employeeCode = employee.getCode(); // 社員番号を取得
-
-        // Reportsエンティティに設定する
-        reports.setEmployee(employee);
-
-        // 日報を保存
-        ErrorKinds result = reportsService.save(reports, employeeCode); // 社員番号を渡す
-
-        if (ErrorMessage.contains(result)) {
-            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            return create(userDetail, model); // エラー発生時、同じ画面に戻る
+        // ユーザーから従業員情報を取得
+        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+            String employeeCode = userDetail.getEmployeeCode(); // 従業員コードを取得
+            reports.setEmployeeCode(employeeCode); // Reportsオブジェクトに従業員コードを設定
+        } else {
+            model.addAttribute("errorMessage", "従業員情報が取得できません。");
+            return create(userDetail, model); // 従業員情報が取得できない場合、エラーメッセージを表示
         }
 
-        return "redirect:/reports"; // 登録成功時に一覧へリダイレクト
-    }
+        ErrorKinds saveResult = reportsService.save(reports, reports.getEmployeeCode()); // 新規日報を保存
 
+        if (saveResult != ErrorKinds.SUCCESS) {
+            model.addAttribute("errorMessage", saveResult.getMessage()); // エラーメッセージをモデルに追加
+            return create(userDetail, model); // エラーがあった場合、再度新規作成画面に戻る
+        }
+
+        // 新規登録成功時に日報一覧画面へリダイレクト
+        return "redirect:/reports"; // 成功した場合はリダイレクト
+    }
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
@@ -97,8 +98,8 @@ public class ReportsController {
         model.addAttribute("reports", reportOpt.get());
 
         // 従業員情報の取得
-        if (userDetail != null && userDetail.getEmployee() != null) {
-            String employeeCode = userDetail.getEmployee().getCode();
+        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }
@@ -135,8 +136,8 @@ public class ReportsController {
         }
 
         // 従業員情報の取得
-        if (userDetail != null && userDetail.getEmployee() != null) {
-            String employeeCode = userDetail.getEmployee().getCode();
+        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+            String employeeCode = userDetail.getEmployeeCode(); // 修正: getEmployeeCode()を使用
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
         }

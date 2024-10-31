@@ -80,4 +80,13 @@ public class Reports {
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;
     }
+
+    // 従業員コードを取得するメソッドの追加
+    public String getEmployeeCode() {
+        return employeeCode; // 社員コードを返す
+    }
+
+    public void setEmployeeCode(String employeeCode) {
+        this.employeeCode = employeeCode; // 社員コードを設定する
+    }
 }
