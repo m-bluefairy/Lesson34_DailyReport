@@ -32,21 +32,20 @@
                                         </div>
                                     </div>
 
-                                      <!-- 氏名表示 -->
+                                    <!-- 氏名表示 -->
                                     <div class="mb-3">
                                         <label class="form-label">氏名</label>
                                         <p class="mb-1" th:text="*{employee.name}"></p>
                                     </div>
 
-                                    <!-- タイトル入力 -->
+                                    <!-- タイトル入力と桁数チェック -->
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
                                         <div class="col-md-7">
                                             <input class="form-control" type="text" th:field="*{title}" th:errorclass="is-invalid" id="title" maxlength="100" />
                                             <!-- タイトルのエラーメッセージ -->
                                             <div th:if="${#fields.hasErrors('title')}" class="text-danger">
-                                                <span th:if="${#fields.errors('title')[0].contains('length')}" th:text="'100文字以下で入力してください'">100文字以下で入力してください</span>
-                                                <span th:if="!${#fields.errors('title')[0].contains('length')}" th:text="${#fields.errors('title')[0]}">値を入力してください</span>
+                                                <span th:text="${#fields.errors('title')[0]}">100文字以下で入力してください</span>
                                             </div>
                                         </div>
                                     </div>
@@ -54,15 +53,14 @@
                                     <!-- 内容入力 -->
                                     <div class="mb-3">
                                         <label class="form-label" for="content">内容</label>
-                                        <textarea class="form-control" id="content" th:field="*{content}" rows="8" maxlength="600"></textarea>
+                                        <textarea class="form-control" id="content" th:field="*{content}" rows="8"></textarea>
                                         <!-- 内容のエラーメッセージ -->
                                         <div th:if="${#fields.hasErrors('content')}" class="text-danger">
-                                            <span th:if="${#fields.errors('content')[0].contains('length')}" th:text="'600文字以下で入力してください'">600文字以下で入力してください</span>
-                                            <span th:if="!${#fields.errors('content')[0].contains('length')}" th:text="${#fields.errors('content')[0]}">値を入力してください</span>
+                                            <span th:text="${#fields.errors('content')[0]}">600文字以下で入力してください</span>
                                         </div>
                                     </div>
 
-                                </div><!--//end_wizard wizard-success mb-4//-->
+                                </div>
 
                                 <!-- エラーメッセージ全体の表示 -->
                                 <div th:if="${errorMessage}" class="text-danger">

@@ -28,14 +28,14 @@ public class Reports {
 
     // タイトル
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
-    @NotEmpty(message = "タイトルは必須です。") // 必須チェック
+    @NotEmpty(message = "値を入力してください") // 必須チェック
     @Size(max = 100, message = "100文字以下で入力してください") // 桁数チェック
     private String title;
 
     // 内容
     @Column(columnDefinition = "LONGTEXT", nullable = false)
-    @NotEmpty(message = "内容は必須です。") // 必須チェック
-    @Size(max = 1000, message = "1000文字以下で入力してください") // 桁数チェック
+    @NotEmpty(message = "値を入力してください") // 必須チェック
+    @Size(max = 600, message = "600文字以下で入力してください") // 桁数チェック
     private String content;
 
     // 社員番号
@@ -59,9 +59,6 @@ public class Reports {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // フィールド名
-    @Column(columnDefinition = "VARCHAR(100)")
-    private String fieldName;
 
     // 日付を取得するメソッド
     public LocalDate getReportDate() {
@@ -70,15 +67,6 @@ public class Reports {
 
     public void setReportDate(@NotNull LocalDate reportDate) { // 引数を LocalDate に変更
         this.reportDate = reportDate;
-    }
-
-    // fieldNameのgetterとsetter
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
     }
 
     // 従業員コードを取得するメソッドの追加

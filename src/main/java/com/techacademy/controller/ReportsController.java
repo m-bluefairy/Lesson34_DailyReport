@@ -113,7 +113,8 @@ public class ReportsController {
     public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
             model.addAttribute("reports", reports);
-            return edit(reports.getId(), userDetail, model); // エラーがある場合、更新画面に戻る
+            model.addAttribute("org.springframework.validation.BindingResult.reports", res); // BindingResultを渡す
+            return "reports/update"; // エラーがある場合は再度フォームに戻る
         }
 
         Long id = reports.getId();
