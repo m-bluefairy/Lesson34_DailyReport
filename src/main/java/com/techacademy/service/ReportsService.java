@@ -11,22 +11,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
+import com.techacademy.entity.Employee;
 import com.techacademy.entity.Reports;
 import com.techacademy.repository.ReportsRepository;
+import com.techacademy.repository.EmployeeRepository;
 
 @Service
 public class ReportsService {
 
     private final ReportsRepository reportsRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public ReportsService(ReportsRepository reportsRepository) {
+    public ReportsService(ReportsRepository reportsRepository, EmployeeRepository employeeRepository) {
         this.reportsRepository = reportsRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     // 日報保存
     @Transactional
-    public ErrorKinds save(Reports reports, String employeeCode) { // employeeCodeを引数として追加
+    public ErrorKinds save(Reports reports, String employeeCode) {
         // 日付チェック
         ErrorKinds result = reportsDateCheck(reports);
         if (ErrorKinds.CHECK_OK != result) {
@@ -35,11 +39,11 @@ public class ReportsService {
         }
 
         // 日報に必要な情報を設定
-        reports.setEmployeeCode(employeeCode); // 社員番号を設定
-        reports.setDeleteFlg(false); // 削除フラグをfalseに設定
+        reports.setEmployeeCode(employeeCode);
+        reports.setDeleteFlg(false);
         LocalDateTime now = LocalDateTime.now();
-        reports.setCreatedAt(now); // 登録日時を設定
-        reports.setUpdatedAt(now); // 更新日時を設定
+        reports.setCreatedAt(now);
+        reports.setUpdatedAt(now);
 
         reportsRepository.save(reports);
         return ErrorKinds.SUCCESS;
@@ -49,7 +53,7 @@ public class ReportsService {
     @Transactional
     public ErrorKinds update(Reports reports, LocalDate newReportDate) {
         if (newReportDate != null) {
-            reports.setReportDate(newReportDate); // StringではなくLocalDateに変更
+            reports.setReportDate(newReportDate);
             ErrorKinds result = reportsDateCheck(reports);
             if (ErrorKinds.CHECK_OK != result) {
                 logErrors(result);
@@ -68,7 +72,7 @@ public class ReportsService {
     // 日付フォーマットチェック
     private ErrorKinds reportsDateCheck(Reports reports) {
         if (reports.getReportDate() == null) {
-            return ErrorKinds.DATE_FORMAT_ERROR; // 日付フォーマットエラー
+            return ErrorKinds.DATE_FORMAT_ERROR;
         }
         return ErrorKinds.CHECK_OK;
     }
@@ -79,7 +83,6 @@ public class ReportsService {
             case DATE_FORMAT_ERROR:
                 System.out.println("エラー: 日付が未入力です。");
                 break;
-            // 他のエラータイプがあればここに追加
             default:
                 break;
         }
@@ -93,6 +96,29 @@ public class ReportsService {
         } else {
             throw new DataIntegrityViolationException("指定された日報が見つかりません。");
         }
+    }
+
+    // 従業員削除処理に紐づく日報削除を追加
+    @Transactional
+    public ErrorKinds deleteReportsByEmployee(String employeeCode) {
+        // 従業員情報を取得
+        Employee employee = employeeRepository.findByCode(employeeCode);
+        if (employee == null) {
+            return ErrorKinds.NOT_FOUND; // 従業員が見つからない場合
+        }
+
+        // 従業員に紐づく日報情報を取得
+        List<Reports> reportsList = reportsRepository.findByEmployee(employee);
+
+        // 従業員に紐づく日報情報を削除
+        for (Reports report : reportsList) {
+            reportsRepository.delete(report);
+        }
+
+        // 従業員自体を削除する場合
+        employeeRepository.delete(employee);
+
+        return ErrorKinds.SUCCESS; // 成功時のレスポンス
     }
 
     // 日報取得（IDで取得する）

@@ -3,8 +3,12 @@ package com.techacademy.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.techacademy.entity.Reports;
+import com.techacademy.entity.Employee;
+
+import java.util.List;
 
 @Repository
 public interface ReportsRepository extends JpaRepository<Reports, Long> {
-    // IDで日報を検索するメソッドはデフォルトで提供されているため追加は不要
+    // 従業員に紐づく日報を取得するメソッド
+    List<Reports> findByEmployee(Employee employee);
 }

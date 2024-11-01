@@ -94,28 +94,26 @@ public class ReportsController {
             return "error";
         }
 
-        model.addAttribute("reports", reportOpt.get());
+        Reports report = reportOpt.get();
+        model.addAttribute("reports", report);
 
-        // 従業員情報の取得
+        // ログインしているユーザーの従業員情報を取得
         if (userDetail != null && userDetail.getCurrentEmployee() != null) {
-            String employeeCode = userDetail.getEmployeeCode();
-            Employee employee = employeeService.findCurrentEmployee(employeeCode);
+            Employee employee = userDetail.getCurrentEmployee();
             model.addAttribute("employee", employee);
+        } else {
+            model.addAttribute("employee", null);  // 従業員情報がない場合
         }
 
         return "reports/update";
     }
 
- // 日報更新処理
- // 日報更新処理
+    // 日報更新処理
     @PostMapping("/{id}/update")
     public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
-        // エラーチェック
         if (res.hasErrors()) {
             model.addAttribute("reports", reports);
-            // エラーメッセージを追加する
-            model.addAttribute("errorMessage", "入力にエラーがあります。");
-            return "reports/update"; // エラーがある場合、更新画面に戻る
+            return edit(reports.getId(), userDetail, model); // エラーがある場合、更新画面に戻る
         }
 
         Long id = reports.getId();
@@ -147,19 +145,18 @@ public class ReportsController {
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                model.addAttribute("reports", savedReports); // エラー発生時、同じ画面に戻るために更新されたreportsを渡す
-                return "reports/update";
+                model.addAttribute("reports", savedReports);
+                return edit(savedReports.getId(), userDetail, model); // エラー発生時、同じ画面に戻る
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             model.addAttribute("reports", savedReports); // 失敗時に再表示するために追加
-            return "reports/update";
+            return edit(savedReports.getId(), userDetail, model);
         }
 
-        return "redirect:/reports"; // 成功時にリダイレクト
+        return "redirect:/reports";
     }
-
 
     // 日報詳細画面
     @GetMapping("/{id}/detail")
@@ -207,4 +204,5 @@ public class ReportsController {
 
         return "redirect:/reports"; // 削除後のリダイレクト先
     }
+
 }
