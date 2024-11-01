@@ -110,16 +110,24 @@ public class ReportsController {
 
     // 日報更新処理
     @PostMapping("/{id}/update")
-    public String update(@Validated @ModelAttribute Reports reports, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
+    public String update(@PathVariable("id") Long id,
+                         @Validated @ModelAttribute Reports reports,
+                         BindingResult res,
+                         Model model,
+                         @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
+            // 更新前のreportsを取得
+            Reports existingReport = reportsService.findById(id).orElse(null);
+            if (existingReport != null) {
+                reports.setEmployee(existingReport.getEmployee()); // 更新前のemployeeをセット
+            }
             model.addAttribute("reports", reports);
             model.addAttribute("org.springframework.validation.BindingResult.reports", res); // BindingResultを渡す
             return "reports/update"; // エラーがある場合は再度フォームに戻る
         }
 
-        Long id = reports.getId();
+        // 更新対象のレポートを取得
         Optional<Reports> savedReportsOpt = reportsService.findById(id);
-
         if (!savedReportsOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
             return "error";
@@ -129,15 +137,16 @@ public class ReportsController {
         savedReports.setTitle(reports.getTitle());
         savedReports.setContent(reports.getContent());
 
-        if (reports.getReportDate() != null) {
-            savedReports.setReportDate(reports.getReportDate());
-        }
-
-        // 従業員情報の取得
+        // employeeオブジェクトをセット
         if (userDetail != null && userDetail.getCurrentEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
-            model.addAttribute("employee", employee);
+            savedReports.setEmployee(employee);  // Employeeを設定
+            model.addAttribute("employee", employee);  // モデルにも設定
+        }
+
+        if (reports.getReportDate() != null) {
+            savedReports.setReportDate(reports.getReportDate());
         }
 
         // 日付のエラー表示
@@ -205,5 +214,4 @@ public class ReportsController {
 
         return "redirect:/reports"; // 削除後のリダイレクト先
     }
-
 }
