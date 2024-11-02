@@ -145,6 +145,11 @@ public class ReportsService {
         return reportsRepository.findByEmployeeCode(employeeCode);
     }
 
+    // 従業員コードに基づいて日報の存在をチェック
+    public boolean existsByEmployeeCode(String employeeCode) {
+        return reportsRepository.existsByEmployeeCode(employeeCode);
+    }
+
     // 従業員コードと日付に基づいて日報の存在をチェック
     public boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate) {
         return reportsRepository.existsByEmployeeCodeAndReportDate(employeeCode, reportDate);

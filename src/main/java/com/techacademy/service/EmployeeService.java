@@ -9,22 +9,24 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
 import com.techacademy.repository.EmployeeRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReportsService reportsService; // 追加
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
+    public EmployeeService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, ReportsService reportsService) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
+        this.reportsService = reportsService; // 追加
     }
 
     // 従業員保存
@@ -51,7 +53,7 @@ public class EmployeeService {
         return ErrorKinds.SUCCESS;
     }
 
-    // 従業員更新（追加）を行なう
+    // 従業員更新を行なう
     @Transactional
     public ErrorKinds update(Employee employee, String newPassword) {
         // 新しいパスワードが空でない場合のみチェックを実施
@@ -79,7 +81,17 @@ public class EmployeeService {
         if (code.equals(userDetail.getEmployee().getCode())) {
             return ErrorKinds.LOGINCHECK_ERROR;
         }
+
+        // 日報が存在するか確認
+        if (reportsService.existsByEmployeeCode(code)) { // ここで日報の存在を確認
+            return ErrorKinds.DUPLICATE_ERROR; // 日報が存在する場合はエラーを返す
+        }
+
         Employee employee = findByCode(code);
+        if (employee == null) {
+            return ErrorKinds.DUPLICATE_ERROR; // 従業員が見つからない場合もエラーを返す
+        }
+
         LocalDateTime now = LocalDateTime.now();
         employee.setUpdatedAt(now);
         employee.setDeleteFlg(true);

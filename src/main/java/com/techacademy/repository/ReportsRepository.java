@@ -20,8 +20,11 @@ public interface ReportsRepository extends JpaRepository<Reports, Long> {
     List<Reports> findByEmployeeAndDeleteFlgFalse(Employee employee);
 
     // 従業員コードに基づいて日報を取得するメソッド
-    List<Reports> findByEmployeeCode(String employeeCode); // 追加
+    List<Reports> findByEmployeeCode(String employeeCode);
+
+    // 従業員コードに基づいて日報の存在を確認するメソッド
+    boolean existsByEmployeeCode(String employeeCode);
 
     // 従業員コードと日付に基づいて日報の存在を確認するメソッド
-    boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate); // 新しく追加
+    boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate);
 }
