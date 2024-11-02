@@ -139,4 +139,9 @@ public class ReportsService {
         }
         return reportsOpt.get();
     }
+
+    // 従業員コードに基づいて日報を取得
+    public List<Reports> findByEmployeeCode(String employeeCode) {
+        return reportsRepository.findByEmployeeCode(employeeCode); // 新しく追加
+    }
 }

@@ -21,7 +21,9 @@ public class SecurityConfig {
         ).logout(logout -> logout.logoutSuccessUrl("/login") // ログアウト後のリダイレクト先
         ).authorizeHttpRequests(
                 auth -> auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // css等は未ログインでアクセス可
-                        .requestMatchers("/employees/**").hasAnyAuthority("ADMIN").anyRequest().authenticated()); // その他はログイン必要
+                        .requestMatchers("/employees/**").hasAuthority("ADMIN") // 「/employees/**」は管理者のみアクセス可
+                        .requestMatchers("/reports/**").hasAnyAuthority("USER", "ADMIN") // 日報関連は一般ユーザーも管理者もアクセス可
+                        .anyRequest().authenticated()); // その他のリクエストは認証が必要
 
         return http.build();
     }

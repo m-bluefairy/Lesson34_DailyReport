@@ -37,9 +37,23 @@ public class ReportsController {
 
     // 日報一覧画面
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listSize", reportsService.findAll().size());
-        model.addAttribute("reportsList", reportsService.findAll());
+    public String list(@AuthenticationPrincipal UserDetail userDetail, Model model) {
+        if (userDetail == null || userDetail.getEmployee() == null) {
+            model.addAttribute("errorMessage", "従業員情報が取得できません。");
+            return "error";
+        }
+
+        // 管理者の場合は全従業員の日報を表示
+        if (userDetail.isAdmin()) {
+            model.addAttribute("listSize", reportsService.findAll().size());
+            model.addAttribute("reportsList", reportsService.findAll());
+        } else {
+            // 一般従業員の場合は自身の日報のみを表示
+            String employeeCode = userDetail.getEmployeeCode();
+            model.addAttribute("listSize", reportsService.findByEmployeeCode(employeeCode).size());
+            model.addAttribute("reportsList", reportsService.findByEmployeeCode(employeeCode));
+        }
+
         return "reports/list";
     }
 
@@ -50,7 +64,7 @@ public class ReportsController {
         model.addAttribute("title", new Reports());
 
         // 現在の従業員情報を取得してモデルに追加
-        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+        if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             model.addAttribute("employee", employee);
@@ -66,7 +80,7 @@ public class ReportsController {
         }
 
         // ユーザーから従業員情報を取得
-        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+        if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode(); // 従業員コードを取得
             reports.setEmployeeCode(employeeCode); // Reportsオブジェクトに従業員コードを設定
         } else {
@@ -98,8 +112,8 @@ public class ReportsController {
         model.addAttribute("reports", report);
 
         // ログインしているユーザーの従業員情報を取得
-        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
-            Employee employee = userDetail.getCurrentEmployee();
+        if (userDetail != null && userDetail.getEmployee() != null) {
+            Employee employee = userDetail.getEmployee();
             model.addAttribute("employee", employee);
         } else {
             model.addAttribute("employee", null);  // 従業員情報がない場合
@@ -138,7 +152,7 @@ public class ReportsController {
         savedReports.setContent(reports.getContent());
 
         // employeeオブジェクトをセット
-        if (userDetail != null && userDetail.getCurrentEmployee() != null) {
+        if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
             savedReports.setEmployee(employee);  // Employeeを設定
