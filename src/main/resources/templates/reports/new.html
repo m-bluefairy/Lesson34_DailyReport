@@ -19,7 +19,7 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                           <form th:action="@{/reports/add}" th:object="${reports}" th:method="post">
+                            <form th:action="@{/reports/add}" th:object="${reports}" th:method="post">
 
                                 <div class="wizard wizard-success mb-4">
 
@@ -29,6 +29,10 @@
                                         <!-- エラーメッセージの表示 -->
                                         <div th:if="${#fields.hasErrors('reportDate')}" class="text-danger">
                                             <span th:text="${#fields.errors('reportDate')[0]}">値を入力してください</span>
+                                        </div>
+                                        <!-- 追加: 既に登録されている日付エラーメッセージ -->
+                                        <div th:if="${errorMessage != null}" class="text-danger">
+                                            <span th:text="${errorMessage}"></span>
                                         </div>
                                     </div>
 

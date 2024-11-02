@@ -107,6 +107,7 @@ public class ReportsController {
         return "redirect:/reports";
     }
 
+
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
     @PreAuthorize("hasAuthority('USER')") // 一般ユーザーがアクセス可

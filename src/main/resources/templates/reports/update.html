@@ -30,6 +30,10 @@
                                         <div th:if="${#fields.hasErrors('reportDate')}" class="text-danger">
                                             <span th:text="${#fields.errors('reportDate')[0]}">値を入力してください</span>
                                         </div>
+                                        <!-- 追加: 既に登録されている日付エラーメッセージ -->
+                                        <div th:if="${errorMessage != null}" class="text-danger">
+                                            <span th:text="${errorMessage}"></span>
+                                        </div>
                                     </div>
 
                                     <!-- 氏名表示 -->
@@ -57,34 +61,4 @@
                                         <textarea class="form-control" id="content" th:field="*{content}" rows="8" maxlength="600"></textarea>
                                         <!-- 内容のエラーメッセージ -->
                                         <div th:if="${#fields.hasErrors('content')}" class="text-danger">
-                                            <span th:if="${#fields.errors('content')[0].contains('length')}" th:text="'600文字以下で入力してください'">600文字以下で入力してください</span>
-                                            <span th:if="!${#fields.errors('content')[0].contains('length')}" th:text="${#fields.errors('content')[0]}">値を入力してください</span>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <!-- エラーメッセージ全体の表示 -->
-                                <div th:if="${errorMessage}" class="text-danger">
-                                    <span th:text="${errorMessage}"></span>
-                                </div>
-
-                                <!-- ボタンエリア -->
-                                <div class="mt-5 row g-1">
-                                    <div class="col-auto">
-                                        <input type="submit" value="更新" class="btn btn-primary">
-                                    </div>
-                                    <div class="col-auto">
-                                        <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div><!--///end_card-body///-->
-                    </div><!--///end_card///-->
-                </div><!--///end_col-xl-12///-->
-            </div><!--///end_col-12 col-xxl-6///-->
-        </div><!--///end_mt-3 h-100 col-sm-10///-->
-    </div><!--////end_row h-100////-->
-</body>
-
-</html>
+                                            <sp
