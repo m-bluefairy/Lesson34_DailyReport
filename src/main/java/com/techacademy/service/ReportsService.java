@@ -142,6 +142,11 @@ public class ReportsService {
 
     // 従業員コードに基づいて日報を取得
     public List<Reports> findByEmployeeCode(String employeeCode) {
-        return reportsRepository.findByEmployeeCode(employeeCode); // 新しく追加
+        return reportsRepository.findByEmployeeCode(employeeCode);
+    }
+
+    // 従業員コードと日付に基づいて日報の存在をチェック
+    public boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate) {
+        return reportsRepository.existsByEmployeeCodeAndReportDate(employeeCode, reportDate);
     }
 }

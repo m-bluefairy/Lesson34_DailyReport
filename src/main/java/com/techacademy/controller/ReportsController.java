@@ -90,6 +90,13 @@ public class ReportsController {
             return create(userDetail, model, reports);
         }
 
+        // 重複チェック
+        boolean exists = reportsService.existsByEmployeeCodeAndReportDate(reports.getEmployeeCode(), reports.getReportDate());
+        if (exists) {
+            model.addAttribute("errorMessage", "この日付には既に日報が存在します。");
+            return create(userDetail, model, reports);
+        }
+
         ErrorKinds saveResult = reportsService.save(reports, reports.getEmployeeCode());
 
         if (saveResult != ErrorKinds.SUCCESS) {
@@ -160,6 +167,14 @@ public class ReportsController {
 
         if (reports.getReportDate() != null) {
             savedReports.setReportDate(reports.getReportDate());
+
+            // 重複チェック
+            boolean exists = reportsService.existsByEmployeeCodeAndReportDate(savedReports.getEmployeeCode(), savedReports.getReportDate());
+            if (exists) {
+                model.addAttribute("errorMessage", "この日付には既に日報が存在します。");
+                model.addAttribute("reports", savedReports);
+                return edit(savedReports.getId(), userDetail, model);
+            }
         }
 
         try {
