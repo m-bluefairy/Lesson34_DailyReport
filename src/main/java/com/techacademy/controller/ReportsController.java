@@ -2,6 +2,7 @@ package com.techacademy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize; // 追加
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +38,7 @@ public class ReportsController {
 
     // 日報一覧画面
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')") // 一般ユーザーと管理者がアクセス可
     public String list(@AuthenticationPrincipal UserDetail userDetail, Model model) {
         if (userDetail == null || userDetail.getEmployee() == null) {
             model.addAttribute("errorMessage", "従業員情報が取得できません。");
@@ -59,11 +61,11 @@ public class ReportsController {
 
     // 日報新規登録画面
     @GetMapping(value = "/add")
+    @PreAuthorize("hasAuthority('USER')") // 一般ユーザーがアクセス可
     public String create(@AuthenticationPrincipal UserDetail userDetail, Model model, @ModelAttribute Reports reports) {
-        model.addAttribute("reports", reports); // エラーのあるreportsオブジェクトをモデルに追加
+        model.addAttribute("reports", reports);
         model.addAttribute("title", new Reports());
 
-        // 現在の従業員情報を取得してモデルに追加
         if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
@@ -74,33 +76,33 @@ public class ReportsController {
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
+    @PreAuthorize("hasAuthority('USER')") // 一般ユーザーがアクセス可
     public String add(@Validated @ModelAttribute Reports reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         if (bindingResult.hasErrors()) {
-            return create(userDetail, model, reports); // エラーがある場合、エラーのあるreportsを渡して再表示
+            return create(userDetail, model, reports);
         }
 
-        // ユーザーから従業員情報を取得
         if (userDetail != null && userDetail.getEmployee() != null) {
-            String employeeCode = userDetail.getEmployeeCode(); // 従業員コードを取得
-            reports.setEmployeeCode(employeeCode); // Reportsオブジェクトに従業員コードを設定
+            String employeeCode = userDetail.getEmployeeCode();
+            reports.setEmployeeCode(employeeCode);
         } else {
             model.addAttribute("errorMessage", "従業員情報が取得できません。");
-            return create(userDetail, model, reports); // 従業員情報が取得できない場合、エラーメッセージを表示
+            return create(userDetail, model, reports);
         }
 
-        ErrorKinds saveResult = reportsService.save(reports, reports.getEmployeeCode()); // 新規日報を保存
+        ErrorKinds saveResult = reportsService.save(reports, reports.getEmployeeCode());
 
         if (saveResult != ErrorKinds.SUCCESS) {
-            model.addAttribute("errorMessage", saveResult.getMessage()); // エラーメッセージをモデルに追加
-            return create(userDetail, model, reports); // エラーがあった場合、再度新規作成画面に戻る
+            model.addAttribute("errorMessage", saveResult.getMessage());
+            return create(userDetail, model, reports);
         }
 
-        // 新規登録成功時に日報一覧画面へリダイレクト
-        return "redirect:/reports"; // 成功した場合はリダイレクト
+        return "redirect:/reports";
     }
 
     // 日報更新画面を表示
     @GetMapping("/{id}/update")
+    @PreAuthorize("hasAuthority('USER')") // 一般ユーザーがアクセス可
     public String edit(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         Optional<Reports> reportOpt = reportsService.findById(id);
         if (!reportOpt.isPresent()) {
@@ -111,12 +113,11 @@ public class ReportsController {
         Reports report = reportOpt.get();
         model.addAttribute("reports", report);
 
-        // ログインしているユーザーの従業員情報を取得
         if (userDetail != null && userDetail.getEmployee() != null) {
             Employee employee = userDetail.getEmployee();
             model.addAttribute("employee", employee);
         } else {
-            model.addAttribute("employee", null);  // 従業員情報がない場合
+            model.addAttribute("employee", null);
         }
 
         return "reports/update";
@@ -124,23 +125,22 @@ public class ReportsController {
 
     // 日報更新処理
     @PostMapping("/{id}/update")
+    @PreAuthorize("hasAuthority('USER')") // 一般ユーザーがアクセス可
     public String update(@PathVariable("id") Long id,
                          @Validated @ModelAttribute Reports reports,
                          BindingResult res,
                          Model model,
                          @AuthenticationPrincipal UserDetail userDetail) {
         if (res.hasErrors()) {
-            // 更新前のreportsを取得
             Reports existingReport = reportsService.findById(id).orElse(null);
             if (existingReport != null) {
-                reports.setEmployee(existingReport.getEmployee()); // 更新前のemployeeをセット
+                reports.setEmployee(existingReport.getEmployee());
             }
             model.addAttribute("reports", reports);
-            model.addAttribute("org.springframework.validation.BindingResult.reports", res); // BindingResultを渡す
-            return "reports/update"; // エラーがある場合は再度フォームに戻る
+            model.addAttribute("org.springframework.validation.BindingResult.reports", res);
+            return "reports/update";
         }
 
-        // 更新対象のレポートを取得
         Optional<Reports> savedReportsOpt = reportsService.findById(id);
         if (!savedReportsOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
@@ -151,31 +151,29 @@ public class ReportsController {
         savedReports.setTitle(reports.getTitle());
         savedReports.setContent(reports.getContent());
 
-        // employeeオブジェクトをセット
         if (userDetail != null && userDetail.getEmployee() != null) {
             String employeeCode = userDetail.getEmployeeCode();
             Employee employee = employeeService.findCurrentEmployee(employeeCode);
-            savedReports.setEmployee(employee);  // Employeeを設定
-            model.addAttribute("employee", employee);  // モデルにも設定
+            savedReports.setEmployee(employee);
+            model.addAttribute("employee", employee);
         }
 
         if (reports.getReportDate() != null) {
             savedReports.setReportDate(reports.getReportDate());
         }
 
-        // 日付のエラー表示
         try {
             ErrorKinds result = reportsService.update(savedReports, reports.getReportDate());
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 model.addAttribute("reports", savedReports);
-                return edit(savedReports.getId(), userDetail, model); // エラー発生時、同じ画面に戻る
+                return edit(savedReports.getId(), userDetail, model);
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            model.addAttribute("reports", savedReports); // 失敗時に再表示するために追加
+            model.addAttribute("reports", savedReports);
             return edit(savedReports.getId(), userDetail, model);
         }
 
@@ -184,18 +182,18 @@ public class ReportsController {
 
     // 日報詳細画面
     @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')") // 一般ユーザーと管理者がアクセス可
     public String showReportDetail(@PathVariable Long id, @RequestParam(value = "date", required = false) String date, Model model) {
         Optional<Reports> reportOpt = reportsService.findById(id);
 
         if (!reportOpt.isPresent()) {
             model.addAttribute("errorMessage", "指定された日報が見つかりません。");
-            return "error"; // エラーページにリダイレクト
+            return "error";
         }
 
         Reports report = reportOpt.get();
         model.addAttribute("reports", report);
 
-        // 従業員情報の取得
         if (report.getEmployee() != null) {
             Employee employee = employeeService.findCurrentEmployee(report.getEmployee().getCode());
             model.addAttribute("employee", employee);
@@ -203,13 +201,12 @@ public class ReportsController {
             model.addAttribute("employee", null);
         }
 
-        // 日付を解析
         if (date != null) {
             try {
                 LocalDate parsedDate = LocalDate.parse(date);
                 model.addAttribute("parsedDate", parsedDate);
             } catch (DateTimeParseException e) {
-                model.addAttribute("errorMessage", "Invalid date format. Please use yyyy-MM-dd.");
+                model.addAttribute("errorMessage", "日付の形式が無効です。 yyyy-MM-dd を使用してください。");
             }
         }
 
@@ -218,6 +215,7 @@ public class ReportsController {
 
     // 日報削除処理
     @PostMapping("/{id}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')") // 管理者のみアクセス可
     public String deleteReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reportsService.deleteReport(id);
@@ -226,6 +224,6 @@ public class ReportsController {
             redirectAttributes.addFlashAttribute("errorMessage", "削除に失敗しました。関連データが存在する可能性があります。");
         }
 
-        return "redirect:/reports"; // 削除後のリダイレクト先
+        return "redirect:/reports";
     }
 }
