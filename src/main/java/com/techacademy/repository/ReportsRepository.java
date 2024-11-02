@@ -27,4 +27,7 @@ public interface ReportsRepository extends JpaRepository<Reports, Long> {
 
     // 従業員コードと日付に基づいて日報の存在を確認するメソッド
     boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate);
+
+    // 従業員コードに基づいて日報の件数をカウントするメソッド
+    int countByEmployeeCode(String employeeCode);
 }

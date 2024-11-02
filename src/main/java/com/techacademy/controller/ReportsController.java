@@ -36,13 +36,18 @@ public class ReportsController {
         this.employeeService = employeeService;
     }
 
-    // 日報一覧画面
+ // 日報一覧画面
     @GetMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')") // 一般ユーザーと管理者がアクセス可
     public String list(@AuthenticationPrincipal UserDetail userDetail, Model model) {
         if (userDetail == null || userDetail.getEmployee() == null) {
             model.addAttribute("errorMessage", "従業員情報が取得できません。");
             return "error";
+        }
+
+        // 従業員が削除フラグを持っている場合、エラーページにリダイレクト
+        if (userDetail.getEmployee().getDeleteFlg()) {
+            return "redirect:/error"; // エラーページのURLにリダイレクト
         }
 
         // 管理者の場合は全従業員の日報を表示
@@ -58,6 +63,7 @@ public class ReportsController {
 
         return "reports/list";
     }
+
 
     // 日報新規登録画面
     @GetMapping(value = "/add")

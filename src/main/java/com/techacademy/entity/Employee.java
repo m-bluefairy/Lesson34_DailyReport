@@ -65,10 +65,20 @@ public class Employee {
 
     // 日報リスト
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Reports> reportList;  // リレーションの追加
+    private List<Reports> reportList;
 
     // 従業員コードを取得するメソッド
     public String getEmployeeCode() {
         return code; // 従業員コードを返す
+    }
+
+    // 削除フラグの取得メソッド
+    public boolean getDeleteFlg() {
+        return deleteFlg;
+    }
+
+    // 削除フラグの設定メソッド
+    public void setDeleteFlg(boolean deleteFlg) {
+        this.deleteFlg = deleteFlg;
     }
 }

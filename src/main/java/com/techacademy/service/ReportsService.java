@@ -154,4 +154,9 @@ public class ReportsService {
     public boolean existsByEmployeeCodeAndReportDate(String employeeCode, LocalDate reportDate) {
         return reportsRepository.existsByEmployeeCodeAndReportDate(employeeCode, reportDate);
     }
+
+    // 従業員に関連する日報を取得するメソッドを追加
+    public List<Reports> findByEmployee(Employee employee) {
+        return reportsRepository.findByEmployee(employee);
+    }
 }

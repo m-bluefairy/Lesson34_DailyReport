@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Reports; // Reportsエンティティをインポート
 import com.techacademy.repository.EmployeeRepository;
 
 @Service
@@ -82,19 +83,24 @@ public class EmployeeService {
             return ErrorKinds.LOGINCHECK_ERROR;
         }
 
-        // 日報が存在するか確認
-        if (reportsService.existsByEmployeeCode(code)) { // ここで日報の存在を確認
-            return ErrorKinds.DUPLICATE_ERROR; // 日報が存在する場合はエラーを返す
-        }
-
+        // 従業員を取得
         Employee employee = findByCode(code);
         if (employee == null) {
-            return ErrorKinds.DUPLICATE_ERROR; // 従業員が見つからない場合もエラーを返す
+            return ErrorKinds.NOT_FOUND; // 従業員が見つからない場合はエラーを返す
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        employee.setUpdatedAt(now);
-        employee.setDeleteFlg(true);
+        // 削除対象の従業員に紐づいている日報が存在するか確認
+        List<Reports> reportList = reportsService.findByEmployee(employee);
+        if (!reportList.isEmpty()) {
+            // 日報が存在する場合は、個別に削除する
+            for (Reports report : reportList) {
+                reportsService.deleteReport(report.getId()); // 日報を削除
+            }
+        }
+
+        // 従業員を削除する
+        employee.setDeleteFlg(true); // 論理削除
+        employeeRepository.save(employee);
 
         return ErrorKinds.SUCCESS;
     }
