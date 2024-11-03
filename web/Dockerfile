@@ -1,8 +1,7 @@
 # 0. ubuntu:22.04をベースにする
 FROM ubuntu:22.04
 
-# 1. command_tutorialディレクトリをルートディレクトリに作成して
-#    そのなかにfirstvi.txtを作成
+# 1. command_tutorialディレクトリをルートディレクトリに作成
 RUN mkdir /command_tutorial
 RUN touch /command_tutorial/firstvi.txt
 
@@ -51,5 +50,4 @@ RUN echo "myuser:mypass" | chpasswd
 RUN echo "root:rootpass" | chpasswd
 
 # 8. 起動時コマンドの指定
-# (startup.sh のコピーコマンドは削除)
 CMD apachectl -D FOREGROUND
