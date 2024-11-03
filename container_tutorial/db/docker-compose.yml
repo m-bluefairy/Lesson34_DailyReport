@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  web:
+    build: ./web
+    image: "myimage:web"
+    container_name: "web_container"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./web:/usr/src/app
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    build: ./db
+    image: "myimage:db"
+    container_name: "db_container"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: daily_report_system
+      MYSQL_USER: repuser
+      MYSQL_PASSWORD: reppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
